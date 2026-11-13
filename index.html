@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le Maître du Sifflet — Escape game EPS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@400;700;800;900&family=Share+Tech+Mono&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   ESCAPE GAME EPS — « Le Maître du Sifflet »
+   Feuille de style commune à toutes les pages
+   ========================================================= */
+:root{
+  --bg:#081028;
+  --bg2:#0e1a3d;
+  --panel:#13214d;
+  --panel2:#1a2b5f;
+  --line:#2a3d7a;
+  --text:#eef3ff;
+  --muted:#9fb0d9;
+  --orange:#ff7a1a;
+  --gold:#ffc93c;
+  --teal:#19d3c5;
+  --pink:#ff4d8d;
+  --ok:#3ddc84;
+  --bad:#ff4d6d;
+  --radius:18px;
+  --shadow:0 12px 40px rgba(0,0,0,.45);
+  --font-title:'Bungee','Impact','Arial Black',sans-serif;
+  --font-body:'Nunito','Segoe UI',system-ui,sans-serif;
+  --font-mono:'Share Tech Mono','Courier New',monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--font-body);
+  color:var(--text);
+  background:
+    radial-gradient(1200px 600px at 15% -10%, rgba(255,122,26,.18), transparent 60%),
+    radial-gradient(900px 500px at 110% 10%, rgba(25,211,197,.16), transparent 60%),
+    linear-gradient(180deg,var(--bg) 0%, var(--bg2) 100%);
+  background-attachment:fixed;
+  min-height:100vh;
+  line-height:1.5;
+  font-size:17px;
+}
+a{color:var(--teal)}
+h1,h2,h3{font-family:var(--font-title);font-weight:400;letter-spacing:.5px;margin:0 0 .4em}
+button{font-family:inherit}
+
+/* ---------- Projecteurs du stade (décor) ---------- */
+.spotlights{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.spotlights span{
+  position:absolute;top:-40vh;width:30vw;height:140vh;
+  background:linear-gradient(180deg,rgba(255,255,255,.10),transparent 70%);
+  transform-origin:top center;filter:blur(8px);
+  animation:sweep 9s ease-in-out infinite alternate;
+}
+.spotlights span:nth-child(1){left:5vw;transform:rotate(18deg)}
+.spotlights span:nth-child(2){right:5vw;transform:rotate(-18deg);animation-delay:-4s}
+@keyframes sweep{from{opacity:.35}to{opacity:.9}}
+
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 18px 60px}
+
+/* ---------- HUD (barre du haut) ---------- */
+#hud{
+  position:sticky;top:0;z-index:50;
+  background:rgba(8,16,40,.86);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.hud-in{max-width:1100px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.hud-logo{font-family:var(--font-title);font-size:15px;color:var(--gold);text-decoration:none;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.hud-logo svg{width:28px;height:28px}
+.hud-team{color:var(--muted);font-weight:700;font-size:14px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hud-spacer{flex:1}
+.timer{
+  font-family:var(--font-mono);font-size:26px;letter-spacing:2px;
+  background:#000;color:#ff3b3b;padding:2px 12px;border-radius:8px;
+  border:2px solid #2b0a0a;box-shadow:inset 0 0 12px rgba(255,0,0,.35),0 0 18px rgba(255,59,59,.25);
+  text-shadow:0 0 8px rgba(255,59,59,.9);
+}
+.timer.warn{animation:blink 1s steps(2) infinite}
+.timer.over{color:var(--gold);text-shadow:0 0 8px rgba(255,201,60,.9)}
+@keyframes blink{50%{opacity:.35}}
+.carnet{display:flex;gap:5px}
+.carnet .slot{
+  width:30px;height:36px;border-radius:7px;display:grid;place-items:center;
+  font-family:var(--font-title);font-size:17px;
+  background:var(--panel);border:2px dashed var(--line);color:var(--line);
+}
+.carnet .slot.got{background:linear-gradient(160deg,var(--gold),var(--orange));border:2px solid #fff3;color:#2a1300;box-shadow:0 0 12px rgba(255,201,60,.5)}
+.hud-btn{
+  background:var(--panel);border:1px solid var(--line);color:var(--text);
+  border-radius:10px;padding:7px 11px;cursor:pointer;font-weight:800;font-size:14px;text-decoration:none;
+}
+.hud-btn:hover{background:var(--panel2)}
+
+/* ---------- Boutons ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;justify-content:center;
+  border:none;border-radius:14px;padding:13px 22px;cursor:pointer;
+  font-weight:900;font-size:17px;text-decoration:none;color:#1b0c00;
+  background:linear-gradient(180deg,#ffb15c,var(--orange));
+  box-shadow:0 6px 0 #b34d00,0 10px 24px rgba(255,122,26,.35);
+  transition:transform .08s, box-shadow .08s;
+}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #b34d00}
+.btn.teal{background:linear-gradient(180deg,#5ff3e8,var(--teal));box-shadow:0 6px 0 #0b8a80,0 10px 24px rgba(25,211,197,.3);color:#00211e}
+.btn.ghost{background:transparent;color:var(--text);border:2px solid var(--line);box-shadow:none}
+.btn.small{padding:8px 14px;font-size:15px;box-shadow:0 4px 0 #b34d00}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+
+/* ---------- Panneaux ---------- */
+.panel{
+  background:linear-gradient(180deg,rgba(26,43,95,.92),rgba(19,33,77,.92));
+  border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:24px;
+}
+
+/* ---------- Page d'accueil ---------- */
+.hero{text-align:center;padding:48px 0 18px}
+.hero h1{
+  font-size:clamp(34px,7vw,72px);line-height:1;
+  background:linear-gradient(180deg,#fff 10%,var(--gold) 55%,var(--orange));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 6px 0 rgba(0,0,0,.35));
+}
+.hero .kicker{font-family:var(--font-title);color:var(--teal);letter-spacing:3px;font-size:14px}
+.hero .sub{color:var(--muted);font-size:19px;max-width:640px;margin:10px auto 0}
+.villain{display:flex;gap:22px;align-items:flex-start}
+.villain .avatar{flex:0 0 120px}
+.villain .msg{flex:1}
+.letter-paper{
+  background:#fdf6e3;color:#2b2112;border-radius:6px;padding:22px 24px;
+  font-family:'Special Elite','Courier New',monospace;font-size:16.5px;line-height:1.6;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);transform:rotate(-.6deg);position:relative;
+}
+.letter-paper:before{content:"";position:absolute;top:-12px;left:50%;width:90px;height:24px;transform:translateX(-50%) rotate(2deg);background:rgba(255,201,60,.65)}
+.letter-paper .sign{text-align:right;font-weight:bold;margin-top:10px}
+.cursor{display:inline-block;width:9px;height:1.1em;background:#2b2112;vertical-align:-3px;animation:blink 1s steps(2) infinite}
+
+.team-form{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.team-form input{
+  flex:1;min-width:200px;padding:14px 16px;border-radius:12px;border:2px solid var(--line);
+  background:#0a1433;color:var(--text);font-size:18px;font-weight:700;
+}
+.team-form input:focus{outline:none;border-color:var(--teal)}
+
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px}
+.rule{background:rgba(0,0,0,.2);border:1px solid var(--line);border-radius:14px;padding:14px}
+.rule b{display:block;font-family:var(--font-title);font-size:14px;color:var(--gold);margin-bottom:4px;font-weight:400}
+
+/* ---------- Plan du complexe sportif ---------- */
+.map-title{display:flex;align-items:end;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:34px 0 14px}
+.map{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:18px;position:relative;
+}
+@media (max-width:820px){.map{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.map{grid-template-columns:1fr}}
+.room-card{
+  position:relative;display:block;text-decoration:none;color:var(--text);
+  border-radius:var(--radius);overflow:hidden;border:2px solid var(--line);
+  background:var(--panel);box-shadow:var(--shadow);transition:transform .15s,border-color .15s;
+  min-height:210px;
+}
+.room-card:hover{transform:translateY(-4px);border-color:var(--teal)}
+.room-card .thumb{height:130px;display:block;width:100%}
+.room-card .info{padding:12px 14px}
+.room-card .num{font-family:var(--font-title);font-size:12px;color:var(--teal);letter-spacing:2px}
+.room-card .name{font-family:var(--font-title);font-size:18px}
+.room-card .theme{color:var(--muted);font-size:14px}
+.room-card.locked{pointer-events:none;filter:grayscale(.85) brightness(.55)}
+.room-card .lock{
+  position:absolute;inset:0;display:grid;place-items:center;font-size:54px;
+  background:rgba(5,10,30,.45);
+}
+.room-card .badge{
+  position:absolute;top:10px;right:10px;width:46px;height:52px;border-radius:10px;display:grid;place-items:center;
+  font-family:var(--font-title);font-size:26px;color:#2a1300;
+  background:linear-gradient(160deg,var(--gold),var(--orange));box-shadow:0 0 18px rgba(255,201,60,.7);
+}
+.room-card.current{border-color:var(--orange);box-shadow:0 0 0 4px rgba(255,122,26,.25),var(--shadow);animation:pulse 2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 10px rgba(255,122,26,.06),var(--shadow)}}
+.room-card.final{grid-column:1/-1;min-height:170px}
+.room-card.final .thumb{height:110px}
+
+/* ---------- Salle ---------- */
+.room-hero{margin:22px 0 18px;border-radius:var(--radius);overflow:hidden;border:2px solid var(--line);box-shadow:var(--shadow);position:relative}
+.room-hero svg{display:block;width:100%;height:auto}
+.room-hero .label{
+  position:absolute;left:18px;bottom:14px;
+  background:rgba(8,16,40,.82);border:1px solid var(--line);border-radius:12px;padding:8px 14px;
+}
+.room-hero .label .n{font-family:var(--font-title);color:var(--teal);font-size:12px;letter-spacing:2px}
+.room-hero .label h1{font-size:clamp(20px,4vw,32px);margin:0}
+.progress{display:flex;gap:6px;margin:0 0 18px}
+.progress i{flex:1;height:8px;border-radius:8px;background:var(--panel2)}
+.progress i.done{background:linear-gradient(90deg,var(--teal),var(--ok))}
+.progress i.now{background:var(--orange);animation:blink 1.2s steps(2) infinite}
+
+.whistle-msg{display:flex;gap:14px;align-items:flex-start;margin-bottom:18px}
+.whistle-msg .av{flex:0 0 64px}
+.bubble{
+  flex:1;background:#0a1433;border:1px solid var(--line);border-radius:4px 16px 16px 16px;padding:14px 16px;
+  font-style:italic;color:#d8e2ff;
+}
+.bubble b{font-style:normal;color:var(--orange)}
+
+/* ---------- Cartes énigmes ---------- */
+.puzzle{
+  background:linear-gradient(180deg,rgba(26,43,95,.95),rgba(19,33,77,.95));
+  border:2px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:18px;
+  box-shadow:var(--shadow);animation:appear .45s ease;
+}
+@keyframes appear{from{opacity:0;transform:translateY(18px)}}
+.puzzle.solved{border-color:rgba(61,220,132,.6)}
+.puzzle .ptop{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.puzzle .tag{font-family:var(--font-title);font-size:12px;letter-spacing:1.5px;background:var(--orange);color:#1b0c00;padding:3px 9px;border-radius:999px}
+.puzzle.solved .tag{background:var(--ok)}
+.puzzle .ptype{color:var(--muted);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px}
+.puzzle h2{font-size:21px;margin:4px 0 8px}
+.puzzle .q{font-size:18px;margin-bottom:14px}
+.puzzle .q small{display:block;color:var(--muted);font-size:14px;margin-top:4px}
+.shake{animation:shake .4s}
+@keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+
+.options{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.opt{
+  text-align:left;background:#0a1433;border:2px solid var(--line);color:var(--text);
+  padding:13px 14px;border-radius:12px;cursor:pointer;font-size:16.5px;font-weight:700;display:flex;gap:10px;align-items:flex-start;
+}
+.opt .l{flex:0 0 28px;height:28px;border-radius:8px;background:var(--panel2);display:grid;place-items:center;font-family:var(--font-title);font-size:13px;color:var(--gold)}
+.opt:hover{border-color:var(--teal)}
+.opt.good{border-color:var(--ok);background:rgba(61,220,132,.15)}
+.opt.bad{border-color:var(--bad);background:rgba(255,77,109,.15)}
+.opt[disabled]{cursor:not-allowed}
+
+/* Cadenas */
+.lock-box{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.lock-ico{width:62px;height:70px;flex:0 0 auto}
+.code-input{
+  font-family:var(--font-mono);font-size:26px;letter-spacing:6px;text-transform:uppercase;
+  width:min(320px,100%);padding:10px 14px;border-radius:12px;border:3px solid var(--gold);
+  background:#000;color:var(--gold);text-align:center;
+}
+.code-input:focus{outline:none;box-shadow:0 0 0 4px rgba(255,201,60,.25)}
+
+/* Vrai / Faux */
+.tf-list{display:flex;flex-direction:column;gap:10px}
+.tf-row{display:flex;gap:12px;align-items:center;background:#0a1433;border:2px solid var(--line);border-radius:12px;padding:10px 12px}
+.tf-row span{flex:1;font-weight:700}
+.tf-row .tf-btns{display:flex;gap:6px}
+.tf-row .tf-btns button{width:46px;height:40px;border-radius:10px;border:2px solid var(--line);background:var(--panel);color:var(--text);font-family:var(--font-title);cursor:pointer}
+.tf-row .tf-btns button.on.v{background:var(--ok);border-color:var(--ok);color:#002812}
+.tf-row .tf-btns button.on.f{background:var(--bad);border-color:var(--bad);color:#2a0008}
+.tf-row.wrong{border-color:var(--bad)}
+
+/* Remettre dans l'ordre */
+.order-slots{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.order-slot{display:flex;gap:10px;align-items:center;min-height:48px;border:2px dashed var(--line);border-radius:12px;padding:8px 12px;background:rgba(0,0,0,.18)}
+.order-slot .n{flex:0 0 30px;height:30px;border-radius:50%;background:var(--teal);color:#00211e;display:grid;place-items:center;font-weight:900}
+.order-slot.filled{border-style:solid;border-color:var(--teal)}
+.order-pool{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  background:var(--panel2);border:2px solid var(--line);color:var(--text);border-radius:999px;padding:9px 14px;
+  font-weight:800;cursor:pointer;font-size:15.5px;
+}
+.chip:hover{border-color:var(--gold)}
+.chip.used{opacity:.25;pointer-events:none}
+
+/* Associer */
+.match{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.match .col{display:flex;flex-direction:column;gap:8px}
+.mitem{
+  background:#0a1433;border:2px solid var(--line);color:var(--text);border-radius:12px;padding:11px 12px;cursor:pointer;
+  font-weight:800;text-align:left;font-size:15.5px;
+}
+.mitem.sel{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,201,60,.25)}
+.mitem.ok{border-color:var(--ok);background:rgba(61,220,132,.13);cursor:default}
+.mitem.no{border-color:var(--bad);background:rgba(255,77,109,.15)}
+.mitem .pair{display:inline-block;min-width:22px;height:22px;border-radius:6px;background:var(--ok);color:#002812;text-align:center;font-size:13px;margin-right:6px}
+
+/* Trouver les objets */
+.find-scene{border-radius:14px;overflow:hidden;border:2px solid var(--line);background:#0a1433}
+.find-scene svg{display:block;width:100%;height:auto}
+.find-scene .hot{cursor:pointer;transition:filter .15s}
+.find-scene .hot:hover{filter:brightness(1.25) drop-shadow(0 0 6px #fff)}
+.find-scene .found-ring{fill:none;stroke:var(--ok);stroke-width:5;stroke-dasharray:6 4;animation:dash 1.2s linear infinite}
+.find-scene .miss-ring{fill:none;stroke:var(--bad);stroke-width:5}
+@keyframes dash{to{stroke-dashoffset:-20}}
+.find-count{margin-top:10px;font-weight:900;color:var(--gold)}
+
+/* Bas de carte */
+.pfoot{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
+.feedback{font-weight:800;min-height:1.4em}
+.feedback.bad{color:var(--bad)}
+.feedback.ok{color:var(--ok)}
+.hint-box{margin-top:12px;background:rgba(255,201,60,.1);border:1px dashed var(--gold);border-radius:12px;padding:10px 14px;color:#ffe7a6}
+.explain{margin-top:14px;background:rgba(61,220,132,.1);border-left:5px solid var(--ok);border-radius:10px;padding:10px 14px}
+.explain b{color:var(--ok)}
+
+/* ---------- Fenêtres modales ---------- */
+.modal-bg{position:fixed;inset:0;background:rgba(3,6,18,.78);backdrop-filter:blur(4px);z-index:100;display:grid;place-items:center;padding:18px;animation:fade .25s}
+@keyframes fade{from{opacity:0}}
+.modal{max-width:560px;width:100%;text-align:center;animation:pop .45s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{transform:scale(.7);opacity:0}}
+.modal h2{font-size:28px;color:var(--gold)}
+.modal .big-letter{
+  width:120px;height:140px;margin:16px auto;border-radius:18px;display:grid;place-items:center;
+  font-family:var(--font-title);font-size:80px;color:#2a1300;
+  background:linear-gradient(160deg,#fff2b8,var(--gold) 40%,var(--orange));
+  box-shadow:0 0 0 6px rgba(255,255,255,.15),0 0 60px rgba(255,201,60,.8);
+  animation:flip 1s ease;
+}
+@keyframes flip{from{transform:rotateY(180deg) scale(.4)}}
+.modal .actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+
+/* ---------- Fin ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0}
+.stat{background:#0a1433;border:1px solid var(--line);border-radius:14px;padding:14px;text-align:center}
+.stat .v{font-family:var(--font-mono);font-size:30px;color:var(--gold)}
+.stat .k{color:var(--muted);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:1px}
+.diploma{
+  background:#fffaf0;color:#2b2112;border-radius:10px;padding:30px;text-align:center;
+  border:10px double #c8961e;box-shadow:var(--shadow);margin-top:20px;
+}
+.diploma h2{font-family:var(--font-title);color:#a8530b;font-size:30px}
+.diploma .team{font-family:var(--font-title);font-size:34px;color:#13214d;margin:6px 0}
+.diploma .stars{font-size:30px;letter-spacing:6px}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:90}
+
+/* ---------- Espace prof ---------- */
+table.sol{width:100%;border-collapse:collapse;font-size:15px}
+table.sol th,table.sol td{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left;vertical-align:top}
+table.sol th{color:var(--gold);font-family:var(--font-title);font-weight:400;font-size:13px;letter-spacing:1px}
+table.sol td.ans{color:var(--ok);font-weight:800}
+
+.footer{text-align:center;color:var(--muted);font-size:13px;margin-top:40px}
+.footer a{color:var(--muted)}
+
+@media (max-width:600px){
+  body{font-size:16px}
+  .villain{flex-direction:column;align-items:center}
+  .match{grid-template-columns:1fr}
+  .timer{font-size:21px}
+  .carnet .slot{width:24px;height:30px;font-size:14px}
+  .hud-team{display:none}
+}
+@media print{
+  #hud,.spotlights,.no-print,.footer{display:none!important}
+  body{background:#fff}
+  .diploma{box-shadow:none}
+}
+
+/* =========================================================
+   MODE « POINT & CLICK »
+   ========================================================= */
+.room-top{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin:20px 0 12px}
+.room-n{font-family:var(--font-title);font-size:12px;letter-spacing:2px;color:var(--teal)}
+.room-title{font-size:clamp(24px,4.5vw,38px);margin:0}
+.room-tools{display:flex;gap:8px;flex-wrap:wrap}
+
+.scene-wrap{position:relative;border-radius:var(--radius);overflow:hidden;border:3px solid var(--line);box-shadow:var(--shadow);background:#000}
+.scene svg{display:block;width:100%;height:auto;user-select:none;-webkit-user-select:none}
+.scene [data-hot]{cursor:pointer;transition:filter .15s}
+.scene [data-hot]:hover{filter:brightness(1.22) drop-shadow(0 0 7px rgba(255,236,170,.95))}
+.scene.reveal [data-hot]{animation:revealPulse .45s ease-in-out 4 alternate}
+@keyframes revealPulse{to{filter:brightness(1.6) drop-shadow(0 0 12px #ffc93c) drop-shadow(0 0 4px #fff)}}
+.scene.reveal rect[data-hot]{fill:rgba(255,201,60,.25)}
+.tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .12s;background:rgba(8,16,40,.92);border:1px solid var(--gold);color:var(--gold);font-weight:800;font-size:14px;padding:4px 10px;border-radius:8px;white-space:nowrap;z-index:5}
+
+.msgbar{display:flex;gap:10px;align-items:flex-start;margin-top:12px;background:#0a1433;border:2px solid var(--line);border-radius:14px;padding:12px 14px;font-size:17px;min-height:54px}
+.msgbar.flash{animation:msgflash .6s}
+@keyframes msgflash{from{border-color:var(--gold);box-shadow:0 0 0 4px rgba(255,201,60,.25)}}
+.msg-ico{font-size:22px;line-height:1}
+
+.inv{margin-top:12px;background:linear-gradient(180deg,#3a2414,#26170c);border:3px solid #6b3a17;border-radius:16px;padding:12px 14px}
+.inv-head{display:flex;gap:12px;align-items:center;flex-wrap:wrap;color:#f4dcb8;font-size:14px;margin-bottom:10px}
+.inv-head b{font-family:var(--font-title);font-weight:400;font-size:15px;color:var(--gold)}
+.inv-items{display:flex;flex-wrap:wrap;gap:8px;min-height:48px}
+.inv-empty{color:#c9a982;font-style:italic;padding:10px 0}
+.item{display:flex;align-items:center;gap:8px;background:#fdf6e3;color:#2b2112;border:3px solid #c9a982;border-radius:12px;padding:6px 12px;font-weight:900;font-size:15px;cursor:pointer}
+.item .ico{font-size:24px;display:flex}
+.item .eye{background:#13214d;color:#fff;border-radius:8px;padding:2px 6px;font-size:14px;margin-left:2px}
+.item.sel{border-color:var(--orange);box-shadow:0 0 0 4px rgba(255,122,26,.45);transform:translateY(-2px)}
+.item.new{animation:newItem 1.5s}
+@keyframes newItem{0%{transform:scale(1.4);box-shadow:0 0 30px #ffc93c}100%{transform:scale(1)}}
+
+.zoom{max-width:860px;width:100%;max-height:92vh;overflow:auto;animation:pop .35s cubic-bezier(.2,1.4,.4,1)}
+.zoom-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.zoom-head h2{margin:0;font-size:22px;color:var(--gold)}
+.zoom-msg:not(:empty){margin-top:12px;background:#0a1433;border:2px solid var(--gold);border-radius:12px;padding:10px 14px}
+.zoom [data-act]{cursor:pointer}
+.seats{display:inline-block;line-height:0}
+.seat{width:58px;height:46px;margin:4px;border-radius:10px;border:3px solid rgba(0,0,0,.3);font-size:22px;cursor:pointer}
+.seat:hover{transform:translateY(-3px)}
+
+.lockm{max-width:520px}
+.lockbody{position:relative;margin:34px auto 10px;padding:18px 16px;border-radius:18px;background:linear-gradient(160deg,#ffe38a,#ffc93c 40%,#c4870a);box-shadow:inset 0 -6px 0 rgba(0,0,0,.2),0 10px 30px rgba(0,0,0,.4);display:inline-block}
+.lockbody .shackle{position:absolute;left:50%;top:-34px;width:90px;height:56px;transform:translateX(-50%);border:12px solid #c9d6f0;border-bottom:none;border-radius:50px 50px 0 0;transition:transform .5s}
+.lockbody.open .shackle{transform:translateX(-50%) translateY(-18px) rotate(-12deg)}
+.rollers{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.roller{display:flex;flex-direction:column;align-items:center;background:#13214d;border-radius:10px;padding:4px;border:3px solid transparent}
+.roller.cur{border-color:var(--teal)}
+.roller button{background:none;border:none;color:var(--gold);font-size:18px;cursor:pointer;padding:2px 8px}
+.roller .rv{font-family:var(--font-mono);font-size:30px;color:#fff;width:34px;text-align:center;background:#000;border-radius:6px;padding:2px 0}
+.lock-help{color:var(--muted);font-size:13px;margin:6px 0}
+.done-banner{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 18px;margin-bottom:12px;border-color:rgba(61,220,132,.6)}
+.flash-title{display:inline-block;background:#ff4d6d;color:#fff;font-family:var(--font-title);font-size:13px;letter-spacing:1px;padding:4px 10px;border-radius:6px;animation:blink 1.4s steps(2) infinite}
+@media (max-width:600px){ .roller .rv{font-size:24px;width:26px} .msgbar{font-size:15.5px} .item{font-size:13.5px} }
+
+/* Enveloppes du Maître */
+.scene .env{animation:envBob 1.6s ease-in-out infinite;transform-box:fill-box}
+@keyframes envBob{50%{filter:drop-shadow(0 0 8px #ffc93c) brightness(1.15)}}
+.qwrap .q{font-size:18px;margin-bottom:14px}
+.clue-box{margin-top:12px;background:rgba(255,201,60,.12);border:2px solid var(--gold);border-radius:12px;padding:12px 14px;color:#ffe7a6}
+.clue-box span{display:block;margin-top:6px;font-size:17px;color:#fff;font-weight:800}
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* =========================================================
+   ESCAPE GAME EPS — « Le Maître du Sifflet »
+   Contenu : objets, salles à fouiller, énigmes, solutions.
+   ========================================================= */
+(function(){
+
+const range = n => Array.from({length:n},(_,i)=>i);
+const H = (id,label,inner) => `<g data-hot="${id}" data-label="${label}">${inner}</g>`;
+const T = 'rgba(0,0,0,0)'; // zone de clic invisible
+
+function trophy(x,y,s,c){
+  c=c||'#ffc93c';
+  return `<g transform="translate(${x},${y}) scale(${s})">
+    <path d="M-22,-40 h44 v10 a22,26 0 0 1 -44,0 z" fill="${c}"/>
+    <path d="M-22,-36 q-16,0 -14,12 q2,10 14,10" fill="none" stroke="${c}" stroke-width="4"/>
+    <path d="M22,-36 q16,0 14,12 q-2,10 -14,10" fill="none" stroke="${c}" stroke-width="4"/>
+    <rect x="-4" y="-5" width="8" height="14" fill="${c}"/><rect x="-14" y="9" width="28" height="7" rx="2" fill="${c}"/>
+    <rect x="-18" y="16" width="36" height="8" rx="2" fill="#7a4a12"/>
+    <path d="M-14,-36 q4,16 10,22" stroke="#fff" stroke-opacity=".55" stroke-width="3" fill="none"/></g>`;
+}
+function padlock(x,y,s,c){
+  return `<g transform="translate(${x},${y}) scale(${s||1})"><path d="M-9,0 v-8 a9,9 0 0 1 18,0 v8" fill="none" stroke="#c9d6f0" stroke-width="4"/><rect x="-13" y="-1" width="26" height="22" rx="4" fill="${c||'#ffc93c'}"/><circle cx="0" cy="9" r="3" fill="#5a3a0a"/></g>`;
+}
+function tag(x,y,n){ return `<g transform="translate(${x},${y})"><circle r="17" fill="#fff" stroke="#13214d" stroke-width="3"/><text y="7" font-family="Arial Black" font-size="20" text-anchor="middle" fill="#13214d">${n}</text></g>`; }
+
+/* ---------- Objets d'inventaire ---------- */
+const WHISTLE_ICON = `<svg viewBox="0 0 40 40" width="30" height="30"><g transform="rotate(-20 20 20)"><rect x="4" y="14" width="20" height="12" rx="5" fill="#ffc93c"/><circle cx="26" cy="20" r="10" fill="#ffc93c"/><circle cx="26" cy="20" r="4" fill="#b38a12"/><rect x="2" y="16" width="6" height="8" rx="2" fill="#ff7a1a"/></g></svg>`;
+const card = (titre,n,c) => `<div style="max-width:260px;margin:auto;background:#fdf6e3;color:#2b2112;border-radius:14px;padding:22px;text-align:center;border:4px solid ${c};box-shadow:0 10px 30px rgba(0,0,0,.4)"><div style="font-family:var(--font-title);font-size:13px;letter-spacing:2px;color:${c}">CARTE « SAUT EN LONGUEUR »</div><div style="font-family:var(--font-title);font-size:24px;margin:10px 0">${titre}</div><div style="font-family:var(--font-title);font-size:70px;color:${c};line-height:1">${n}</div></div>`;
+
+const ITEMS = {
+  cle_casier:{name:'Petite clé', icon:'🔑', room:1},
+  note:{name:'Note froissée', icon:'📝', room:1, view:`<div class="letter-paper">Mon code ? Il se cache sur les objets <b>INTERDITS</b> en cours d'EPS…<br>Range-les de la <b>TÊTE</b> aux <b>PIEDS</b>.<div class="sign">— M.S.</div></div>`},
+  telecommande:{name:'Télécommande', icon:'🎛️', room:2},
+  sifflet:{name:'Sifflet doré', icon:WHISTLE_ICON, room:0, view:`<p style="text-align:center">Un sifflet d'arbitre doré, gravé « M.S. ».<br>Il pourrait bien servir plus tard…</p>`},
+  fiche_arbitre:{name:'Fiche d\'arbitre', icon:'📋', room:2, view:'FICHE_ARBITRE'},
+  cle_local:{name:'Clé du local', icon:'🗝️', room:3},
+  rateau:{name:'Râteau', icon:'🧹', room:3},
+  carte_elan:{name:'Carte « Course d\'élan »', icon:'🃏', room:3, view:card("Course d'élan",3,'#ff7a1a')},
+  carte_impulsion:{name:'Carte « Impulsion »', icon:'🃏', room:3, view:card('Impulsion',8,'#19d3c5')},
+  carte_suspension:{name:'Carte « Suspension »', icon:'🃏', room:3, view:card('Suspension',1,'#a46bff')},
+  carte_reception:{name:'Carte « Réception »', icon:'🃏', room:3, view:card('Réception',6,'#3ddc84')},
+  serpilliere:{name:'Serpillière', icon:'🧽', room:4},
+  tapis:{name:'Tapis de réception', icon:'🟦', room:4},
+  fiche_acro:{name:'Fiche acrosport', icon:'📄', room:4, view:'FICHE_ACRO'},
+  cle_tiroir:{name:'Clé du tiroir', icon:'🔑', room:5},
+  pile:{name:'Pile', icon:'🔋', room:5}
+};
+
+const FICHE_ARBITRE = `<div class="letter-paper" style="transform:none">
+  <div style="text-align:center;font-weight:bold;font-size:18px;margin-bottom:6px">📋 EXAMEN DE L'ARBITRE</div>
+  <div style="text-align:center;margin-bottom:12px">Pour chaque situation, garde la lettre de la <b>bonne décision</b>.<br>Les 5 lettres, dans l'ordre, ouvrent la porte du gymnase.</div>
+  <ol style="padding-left:20px;margin:0">
+   <li><b>Basket</b> — Je dribble, je prends la balle à deux mains, puis je redribble.<br>&nbsp;&nbsp;B : Marcher &nbsp;•&nbsp; <b>S</b> : Reprise de dribble &nbsp;•&nbsp; K : Panier valable</li>
+   <li><b>Handball</b> — Je fais 5 pas avec le ballon en main.<br>&nbsp;&nbsp;T : Rien à siffler &nbsp;•&nbsp; Z : Penalty &nbsp;•&nbsp; <b>P</b> : Marcher</li>
+   <li><b>Volley</b> — Mon équipe touche 4 fois le ballon avant de le renvoyer.<br>&nbsp;&nbsp;<b>O</b> : Faute (4 touches) &nbsp;•&nbsp; L : On continue &nbsp;•&nbsp; A : Point pour nous</li>
+   <li><b>Ultimate</b> — Je cours avec le disque dans les mains.<br>&nbsp;&nbsp;U : Point marqué &nbsp;•&nbsp; <b>R</b> : Faute : on pivote, on ne court pas &nbsp;•&nbsp; I : Rien</li>
+   <li><b>Football</b> — Un joueur de champ touche volontairement le ballon de la main.<br>&nbsp;&nbsp;E : Touche &nbsp;•&nbsp; N : Rien &nbsp;•&nbsp; <b>T</b> : Coup franc (ou penalty dans la surface)</li>
+  </ol></div>`.replace(/<b>([A-Z])<\/b> :/g,'$1 :'); // les bonnes réponses ne sont pas en gras !
+
+const FICHE_ACRO = `<div class="letter-paper" style="transform:none">
+  <div style="text-align:center;font-weight:bold;font-size:18px;margin-bottom:6px">📄 FICHE DU JUGE — ACROSPORT</div>
+  <div style="text-align:center;margin-bottom:12px">Le code de la porte = les numéros des figures <b>RÉALISÉES EN SÉCURITÉ</b>, du plus petit au plus grand.</div>
+  <ol style="padding-left:20px;margin:0;line-height:1.55">
+   <li>Le porteur est à quatre pattes. Le voltigeur se tient debout <b>au milieu du dos</b> (les lombaires). Un pareur est présent.</li>
+   <li>Le porteur est à quatre pattes. Le voltigeur pose un pied sur ses <b>épaules</b>, un pied sur son <b>bassin</b>. Un pareur est présent. Figure tenue 3 secondes.</li>
+   <li>Pyramide à 3 élèves en hauteur, <b>sans pareur</b>, « parce qu'on est forts ».</li>
+   <li>Le voltigeur est assis sur les <b>épaules</b> du porteur debout. Un pareur l'accompagne. Figure tenue 3 secondes, démontage contrôlé.</li>
+   <li>Figure tenue 1 seconde, puis le voltigeur <b>saute</b> du haut de la pyramide pour redescendre plus vite.</li>
+   <li>Le porteur est en appui dos au sol, genoux pliés. Le voltigeur se tient debout sur ses <b>cuisses, près des hanches</b>. Un pareur tient le voltigeur. Figure tenue 3 secondes.</li>
+  </ol></div>`;
+
+ITEMS.fiche_arbitre.view=FICHE_ARBITRE; ITEMS.fiche_acro.view=FICHE_ACRO;
+
+/* ---------- Petits dessins d'objets (sac de sport) ---------- */
+const ART = {
+  gum:`<rect x="-40" y="-16" width="80" height="34" rx="6" fill="#ff4d8d" stroke="#b3135a" stroke-width="3"/><text y="8" font-family="Arial Black" font-size="16" fill="#fff" text-anchor="middle">GUM</text>`,
+  collier:`<ellipse cx="0" cy="-6" rx="42" ry="30" fill="none" stroke="#ffd34d" stroke-width="5" stroke-dasharray="4 4"/><path d="M0,24 l-10,14 h20z" fill="#ff4d8d"/>`,
+  montre:`<rect x="-12" y="-46" width="24" height="92" rx="8" fill="#444"/><circle r="26" fill="#ffd34d"/><circle r="20" fill="#fff"/><path d="M0,0 v-13 M0,0 l9,5" stroke="#333" stroke-width="3"/>`,
+  tongs:`<ellipse cx="-24" cy="0" rx="20" ry="44" fill="#ffc93c" stroke="#b38a12" stroke-width="3"/><ellipse cx="24" cy="4" rx="20" ry="44" fill="#ffc93c" stroke="#b38a12" stroke-width="3"/><path d="M-38,-12 l14,-14 l14,14 M10,-8 l14,-14 l14,14" stroke="#ff4d8d" stroke-width="4" fill="none"/>`,
+  elastique:`<ellipse rx="34" ry="14" fill="none" stroke="#a46bff" stroke-width="9"/>`,
+  tshirt:`<path d="M-35,-40 l22,-10 q13,14 26,0 l22,10 l18,30 l-22,10 l-6,-12 v62 h-50 v-62 l-6,12 l-22,-10z" fill="#ff7a1a" stroke="#b34d00" stroke-width="3"/><text y="10" font-family="Arial Black" font-size="14" fill="#fff" text-anchor="middle">EPS</text>`,
+  gourde:`<rect x="-20" y="-34" width="40" height="80" rx="12" fill="#9ae6ff" stroke="#3aa0c8" stroke-width="3"/><rect x="-12" y="-52" width="24" height="20" rx="4" fill="#3aa0c8"/>`,
+  baskets:`<path d="M-60,30 q0,-35 30,-40 l30,10 q30,4 40,22 v10z" fill="#f4f8ff" stroke="#7a8bb5" stroke-width="3"/><path d="M-32,-2 l20,8 M-29,6 l20,8" stroke="#ff7a1a" stroke-width="3"/><rect x="-62" y="28" width="104" height="8" fill="#ff7a1a"/>`
+};
+function sacZoom(){
+  const items=[['tshirt',3],['gum',7],['gourde',1],['collier',2],['elastique',8],['montre',9],['baskets',5],['tongs',4]];
+  return `<svg viewBox="0 0 800 420" style="width:100%;border-radius:14px;background:linear-gradient(#e86a10,#a64300)">
+   <rect x="20" y="20" width="760" height="380" rx="30" fill="#2a1a10" opacity=".55"/>
+   ${items.map(([k,n],i)=>{const cx=110+(i%4)*190, cy=120+Math.floor(i/4)*180;return `<g transform="translate(${cx},${cy})">${ART[k]}</g>${tag(cx+60,cy-50,n)}`}).join('')}
+  </svg><p style="text-align:center;color:var(--muted);margin:8px 0 0">Chaque objet du sac porte une petite étiquette avec un chiffre…</p>`;
+}
+
+/* =========================================================
+   LES SALLES
+   ========================================================= */
+const ROOMS = [];
+
+/* ---------- SALLE 1 : LES VESTIAIRES ---------- */
+ROOMS.push({
+  id:1, file:'#salle1', name:'Les Vestiaires', theme:'Tenue, hygiène & sécurité', letter:'E',
+  intro:"Ahahaha ! Vous êtes tombés dans mon piège : la porte des vestiaires s'est refermée derrière vous ! Elle est bloquée par mon cadenas à 4 chiffres. Fouillez… si vous supportez l'odeur des chaussettes de 4e. Tweeeet !",
+  outro:"QUOI ?! Déjà sortis ? … Bon. Vous savez vous habiller pour le sport, c'est un début. Prenez cette lettre. Mais au gymnase, vous allez pleurer. Tweet.",
+  exit:'porte',
+  questions:[
+    {at:[620,428], type:'qcm', title:"Oups, la tenue !", q:"Tu as oublié ta tenue de sport à la maison. Que fais-tu ?",
+     options:["Je me cache dans les vestiaires jusqu'à la sonnerie","Je préviens mon professeur dès le début du cours","Je fais le cours en jean sans rien dire","Je rentre chez moi la chercher"], answer:1,
+     explain:"On prévient toujours le professeur. Il peut te confier un rôle : observateur, juge, chronométreur…",
+     clue:"Un vêtement INTERDIT en EPS est accroché au porte-manteau… Fouillez ses poches !"},
+    {at:[405,82], type:'tf', title:"La tenue du champion", q:"Vrai ou faux ?",
+     items:[{s:"Les lacets doivent être bien noués avant le cours.",a:true},{s:"Je peux garder ma montre pendant un match de handball.",a:false},{s:"Les cheveux longs doivent être attachés.",a:true},{s:"Après le cours, inutile de se changer.",a:false}],
+     explain:"Tenue adaptée = sécurité + confort. Et on se change après l'effort (hygiène !).",
+     clue:"Un seul casier a une petite serrure à clé : le casier n°3."},
+    {at:[790,510], type:'qcm', title:"Le mystère de la dispense", q:"Qui peut déclarer un élève <b>inapte</b> à l'EPS pour plusieurs semaines ?",
+     options:["Les parents, avec un mot dans le carnet","Un médecin, avec un certificat médical","Le meilleur ami de l'élève","L'élève lui-même, s'il est fatigué"], answer:1,
+     explain:"L'inaptitude est constatée par un <b>médecin</b>. Et inapte ne veut pas dire absent : on peut avoir un rôle adapté.",
+     clue:"Le code de la porte : les objets INTERDITS du sac, rangés de la tête aux pieds → bouche, cou, poignet, pieds !"}
+  ],
+  hints:[
+    {until:'affiche', text:"Commencez par lire l'affiche accrochée au mur à gauche."},
+    {until:'cle', text:"Un vêtement interdit en EPS est accroché au porte-manteau… Fouillez ses poches !"},
+    {until:'casier3', text:"La petite clé ouvre un des casiers. Sélectionnez-la dans l'inventaire, puis cliquez sur le bon casier."},
+    {until:'note', text:"La poubelle cache peut-être un message du Maître du Sifflet…"},
+    {until:'done', text:"Les objets interdits du sac : le chewing-gum (bouche), le collier (cou), la montre (poignet), les tongs (pieds). Lisez leurs chiffres de la tête aux pieds !"}
+  ],
+  solution:["Lire l'affiche du règlement (mur gauche).","Fouiller la poche du jean (porte-manteau) → petite clé.","Utiliser la clé sur le casier n°3 → sac de sport avec 8 objets numérotés.","Fouiller la poubelle → note : « objets interdits, de la tête aux pieds ».","Interdits : chewing-gum 7 (bouche), collier 2 (cou), montre 9 (poignet), tongs 4 (pieds). L'élastique (cheveux) est autorisé !","Cadenas de la porte : <b>7294</b>."],
+  render(c){
+    const lockers = range(6).map(i=>{
+      const x=250+i*76, open = i===2 && c.f('casier3');
+      if(open) return `<g><rect x="${x}" y="110" width="70" height="320" fill="#06121f" stroke="#0b5566" stroke-width="3"/><rect x="${x+8}" y="190" width="54" height="4" fill="#556"/>
+        <path d="M${x+10},300 q25,-40 50,0 v80 h-50z" fill="#ff7a1a" stroke="#a64300" stroke-width="3"/><path d="M${x+20},300 q15,-25 30,0" stroke="#a64300" stroke-width="4" fill="none"/>
+        <polygon points="${x+70},110 ${x+110},126 ${x+110},414 ${x+70},430" fill="#1590a8" stroke="#0b5566" stroke-width="3"/></g>`;
+      return `<g><rect x="${x}" y="110" width="70" height="320" rx="4" fill="url(#r1l)" stroke="#0b5566" stroke-width="3"/>
+        ${range(5).map(k=>`<rect x="${x+14}" y="${128+k*9}" width="42" height="4" rx="2" fill="#0b5566" opacity=".7"/>`).join('')}
+        <circle cx="${x+35}" cy="390" r="15" fill="#0b5566"/><text x="${x+35}" y="396" font-family="Arial Black" font-size="15" fill="#e9f6ff" text-anchor="middle">${i+1}</text>
+        <rect x="${x+56}" y="250" width="7" height="28" rx="3" fill="#e9f6ff"/>
+        ${i===1?padlock(x+60,290,.8,'#ff4d8d'):''}${i===2?`<circle cx="${x+59}" cy="290" r="5" fill="#222"/><rect x="${x+57}" y="290" width="4" height="9" fill="#222"/>`:''}</g>`;
+    }).join('');
+    return `<svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="r1w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#23467f"/><stop offset="1" stop-color="#132a57"/></linearGradient>
+      <linearGradient id="r1l" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1fb6c9"/><stop offset=".5" stop-color="#36d6e4"/><stop offset="1" stop-color="#1590a8"/></linearGradient>
+      <pattern id="r1t" width="40" height="40" patternUnits="userSpaceOnUse"><rect width="40" height="40" fill="none" stroke="#ffffff12"/></pattern>
+      <radialGradient id="r1g" cx=".5" cy="0" r="1"><stop offset="0" stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="1000" height="560" fill="url(#r1w)"/><rect width="1000" height="440" fill="url(#r1t)"/>
+    <rect y="440" width="1000" height="120" fill="#0b1736"/>${range(12).map(i=>`<line x1="${i*90}" y1="440" x2="${i*90-40}" y2="560" stroke="#ffffff10"/>`).join('')}
+    <ellipse cx="500" cy="0" rx="520" ry="200" fill="url(#r1g)"/>
+    <rect x="460" y="0" width="80" height="12" fill="#cfd8ff"/>
+    ${H('affiche',"Affiche du règlement",`<rect x="40" y="70" width="170" height="220" fill="${T}"/><g transform="rotate(-3 125 180)"><rect x="50" y="80" width="150" height="200" fill="#fdf6e3"/><rect x="95" y="70" width="60" height="18" fill="#ffc93c" opacity=".8"/>
+      <text x="125" y="112" font-family="Arial Black" font-size="15" text-anchor="middle" fill="#a8530b">RÈGLEMENT</text>${range(8).map(k=>`<rect x="66" y="${128+k*17}" width="${90+(k*23)%30}" height="5" rx="2" fill="#8a7a5a"/>`).join('')}
+      <path d="M150,250 q20,-20 40,6" stroke="#ff4d4d" stroke-width="3" fill="none"/></g>`)}
+    ${lockers}
+    ${range(6).map(i=>`<rect data-hot="${i===2?'casier3':'casier'+(i+1)}" data-label="Casier n°${i+1}" x="${250+i*76}" y="110" width="70" height="320" fill="${T}"/>`).join('')}
+    ${H('jean',"Porte-manteau",`<rect x="720" y="130" width="110" height="260" fill="${T}"/><rect x="715" y="140" width="120" height="10" rx="4" fill="#8a8fa8"/>
+      ${[735,775,815].map(x=>`<path d="M${x},150 v14 q0,8 -8,8" stroke="#c9d6f0" stroke-width="4" fill="none"/>`).join('')}
+      <path d="M745,170 h60 l8,190 h-30 l-13,-130 l-13,130 h-30z" fill="#2a5db0" stroke="#173a77" stroke-width="3"/><path d="M745,184 h60" stroke="#d6a24a" stroke-width="3"/><path d="M752,194 q12,12 22,0 M778,194 q12,12 22,0" stroke="#d6a24a" stroke-width="2" fill="none"/>`)}
+    ${H('porte',"Porte de sortie",`<rect x="850" y="80" width="130" height="362" fill="#3a2a1a" stroke="#1a120a" stroke-width="5"/><rect x="866" y="100" width="98" height="140" fill="#4a3624"/><rect x="866" y="260" width="98" height="160" fill="#4a3624"/>
+      <rect x="870" y="50" width="90" height="26" rx="4" fill="#3ddc84"/><text x="915" y="69" font-family="Arial Black" font-size="15" text-anchor="middle" fill="#00321a">SORTIE</text>
+      <rect x="858" y="250" width="14" height="40" rx="3" fill="#c9d6f0"/>${padlock(865,305,1.4)}`)}
+    ${H('banc',"Banc",`<rect x="270" y="455" width="470" height="18" rx="6" fill="#c98a4b"/><rect x="300" y="473" width="12" height="50" fill="#7a4a12"/><rect x="700" y="473" width="12" height="50" fill="#7a4a12"/><path d="M520,515 q10,-14 30,-6 l6,10 h-36z" fill="#e8e8e8"/>`)}
+    ${H('poubelle',"Poubelle",`<path d="M70,410 h90 l-10,110 h-70z" fill="#5a6585" stroke="#2c3350" stroke-width="3"/><rect x="64" y="402" width="102" height="12" rx="4" fill="#7a86a8"/><circle cx="100" cy="398" r="12" fill="#fdf6e3"/><circle cx="122" cy="396" r="9" fill="#e8e0c8"/>`)}
+    </svg>`;
+  },
+  hot:{
+    affiche(c){ c.set('affiche'); c.zoom('Affiche du règlement',`<div class="letter-paper" style="transform:none">
+      <div style="text-align:center;font-weight:bold;font-size:20px">📜 RÈGLEMENT DES VESTIAIRES</div><ol>
+      <li>Tenue de sport <b>obligatoire</b> : short ou survêtement, t-shirt, baskets <b>lacées</b>.</li>
+      <li>On retire <b>bijoux et montres</b> avant le cours.</li><li><b>Pas de chewing-gum</b> pendant l'effort.</li>
+      <li>Pas de tongs ni de sandales : il faut des chaussures qui tiennent la cheville.</li><li>Les cheveux longs sont <b>attachés</b>.</li>
+      <li>Une gourde d'eau, c'est conseillé.</li><li>Après le cours, on se change (hygiène !).</li></ol>
+      <div style="color:#c0392b;font-style:italic;text-align:right">Gribouillé en rouge : « Mon code est caché sur ce qui est INTERDIT… » — M.S.</div></div>`); },
+    casier1(c){ c.say("Casier n°1 : vide. Juste une odeur de chaussettes… beurk."); },
+    casier2(c){ c.say("Casier n°2 : fermé par un cadenas rose. Ce n'est pas le vôtre, on ne touche pas !"); },
+    casier4(c){ c.say("Casier n°4 : fermé. Une étiquette : « Pas de bijoux en EPS ! »"); },
+    casier5(c){ c.say("Casier n°5 : fermé. Quelqu'un a gravé : « Le Maître du Sifflet était là »."); },
+    casier6(c){ c.say("Casier n°6 : un vieux bonnet de bain oublié. Rien d'utile ici."); },
+    casier3(c){
+      if(c.f('casier3')) return c.zoom('Le sac de sport du casier n°3', sacZoom());
+      if(c.use('cle_casier')){ c.set('casier3'); c.drop('cle_casier'); c.sfx('ok'); c.say("Clic ! La petite clé ouvre le casier n°3. Il y a un sac de sport à l'intérieur. Cliquez dessus pour l'ouvrir."); return; }
+      c.say("Casier n°3 : fermé à clé. Il y a une petite serrure…");
+    },
+    jean(c){
+      c.zoom('Le porte-manteau',`<div style="text-align:center"><svg viewBox="0 0 300 300" style="width:min(280px,80%)"><rect width="300" height="300" rx="16" fill="#132a57"/>
+        <path d="M100,30 h100 l12,250 h-46 l-16,-170 l-16,170 h-46z" fill="#2a5db0" stroke="#173a77" stroke-width="4"/><path d="M100,52 h100" stroke="#d6a24a" stroke-width="4"/>
+        <g data-act="poche" style="cursor:pointer"><path d="M112,62 q22,26 40,0" stroke="#d6a24a" stroke-width="4" fill="#24529c"/><rect x="105" y="58" width="55" height="40" fill="${T}"/></g>
+        <path d="M156,62 q22,26 40,0" stroke="#d6a24a" stroke-width="4" fill="none"/></svg>
+        <p>Un <b>jean</b> ! Vêtement interdit en EPS : impossible de bien bouger avec. ${c.f('cle')?'Les poches sont vides.':'Une des poches semble gonflée…'}</p></div>`,
+        {poche(c){ if(c.f('cle')) return c.say('La poche est vide.'); c.set('cle'); c.give('cle_casier'); c.say("Dans la poche du jean : une <b>petite clé</b> ! Elle est dans votre inventaire."); c.closeZoom(); }});
+    },
+    poubelle(c){
+      if(c.f('note')) return c.say("Rien d'autre dans la poubelle… à part un trognon de pomme.");
+      c.set('note'); c.give('note'); c.sfx('ok');
+      c.say("Dans la poubelle, une <b>note froissée</b>. Cliquez dessus dans l'inventaire puis sur 🔍 pour la lire.");
+    },
+    banc(c){ c.say("Sous le banc : une chaussette orpheline. Rien d'utile… et franchement, beurk."); },
+    porte(c){ c.lock({title:'Cadenas de la porte', text:'Un cadenas à 4 chiffres.', kind:'digits', len:4, answer:'7294', onOpen:()=>c.finish()}); }
+  }
+});
+
+/* ---------- SALLE 2 : LE GYMNASE ---------- */
+ROOMS.push({
+  id:2, file:'#salle2', name:'Le Gymnase', theme:'Sports collectifs & arbitrage', letter:'P',
+  intro:"Bienvenue dans MON gymnase ! Ici, c'est moi qui siffle. J'ai fermé la porte avec un cadenas à LETTRES : seul un VRAI arbitre trouvera le mot. Même mon poisson rouge connaît la règle des 3 pas… et vous ?",
+  outro:"Grrr… Vous arbitrez presque aussi bien que moi. PRESQUE. Prenez votre lettre. Et rendez-moi mon sifflet ! … Ah non ? Bon, gardez-le, de toute façon vous n'en ferez rien. Hé hé.",
+  exit:'porte',
+  questions:[
+    {at:[140,425], type:'match', title:"Le compte est bon", q:"Associe chaque sport au nombre de joueurs sur le terrain pour UNE équipe. Clique à gauche, puis à droite.",
+     pairs:[["Basket-ball","5 joueurs"],["Volley-ball","6 joueurs"],["Handball","7 joueurs (gardien compris)"],["Football","11 joueurs"]],
+     explain:"Bravo ! Ces nombres vont vous servir très bientôt…",
+     clue:"Le chariot à ballons : 3 chiffres = joueurs de basket, de volley, puis de hand. Ça ne vous rappelle rien ?"},
+    {at:[455,560-50], type:'qcm', title:"Handball : attention aux pas !", q:"Au handball, combien de pas peut-on faire au maximum avec le ballon en main ?",
+     options:["1 pas","3 pas","5 pas","Autant que je veux"], answer:1,
+     explain:"3 pas et 3 secondes maximum avec le ballon en main. Au-delà : « marcher ».",
+     clue:"La télécommande du tableau d'affichage a glissé dans les gradins… sous un siège du rang du MILIEU."},
+    {at:[930,480], type:'qcm', title:"Ultimate : l'esprit du jeu", q:"En ultimate, que doit faire le joueur qui attrape le disque ?",
+     options:["Courir jusqu'à la zone d'en-but","S'arrêter, pivoter, et faire une passe en moins de 10 secondes","Garder le disque aussi longtemps qu'il veut","Lancer le disque à l'arbitre"], answer:1,
+     explain:"On ne court pas avec le disque : on pivote et on passe. Pas d'arbitre : c'est l'<b>esprit du jeu</b> !",
+     clue:"Le sifflet doré de la table de marque : prenez-le ! Il servira dans la toute dernière salle."}
+  ],
+  hints:[
+    {until:'tele', text:"Le tableau d'affichage est éteint. Sa télécommande a dû glisser… dans les gradins ? Regardez sous les sièges."},
+    {until:'tableau', text:"Sélectionnez la télécommande dans l'inventaire, puis cliquez sur le tableau d'affichage."},
+    {until:'chariot', text:"Le chariot : 3 chiffres = nombre de joueurs sur le terrain pour une équipe de basket, de volley, puis de hand (gardien compris)."},
+    {until:'fiche', text:"Ouvrez le chariot et prenez ce qu'il contient."},
+    {until:'done', text:"Lisez la fiche d'arbitre (🔍 dans l'inventaire). La 1re bonne décision au basket est une reprise de dribble → S…"}
+  ],
+  solution:["Fouiller les gradins : sous un siège du rang du milieu → télécommande.","Utiliser la télécommande sur le tableau d'affichage → « Chariot = joueurs sur le terrain : basket, volley, hand ».","Cadenas du chariot : <b>567</b> → fiche d'arbitre.","Prendre le sifflet sur la table de marque (servira dans la salle 6 !).","Fiche d'arbitre : reprise de dribble S, marcher P, 4 touches O, on pivote R, coup franc T.","Cadenas à lettres de la porte : <b>SPORT</b>."],
+  render(c){
+    const on=c.f('tableau'), open=c.f('chariot');
+    return `<svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="r2f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e2a464"/><stop offset="1" stop-color="#94592a"/></linearGradient>
+      <linearGradient id="r2w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#132a5c"/><stop offset="1" stop-color="#1f3d7d"/></linearGradient></defs>
+    <rect width="1000" height="560" fill="url(#r2w)"/>
+    ${range(7).map(i=>`<rect x="${20+i*140}" y="14" width="110" height="40" rx="4" fill="#9fe8ff" opacity=".3"/>`).join('')}
+    <rect y="300" width="1000" height="22" fill="#ff7a1a"/><text x="500" y="317" font-family="Arial Black" font-size="15" fill="#2a1300" text-anchor="middle" letter-spacing="8">GYMNASE • AS DU COLLÈGE</text>
+    <rect y="322" width="1000" height="238" fill="url(#r2f)"/>
+    ${range(20).map(i=>`<line x1="${i*60-100}" y1="560" x2="${i*50}" y2="322" stroke="#7a4a1a" stroke-opacity=".3"/>`).join('')}
+    <ellipse cx="500" cy="450" rx="130" ry="44" fill="none" stroke="#fff" stroke-width="4"/><line x1="500" y1="322" x2="500" y2="560" stroke="#fff" stroke-width="4"/>
+    ${H('tableau',"Tableau d'affichage",`<rect x="370" y="70" width="260" height="130" rx="10" fill="#0a0a0a" stroke="#555" stroke-width="6"/>
+      ${on?`<text x="500" y="100" font-family="Courier New" font-weight="bold" font-size="16" fill="#ffc93c" text-anchor="middle">CHARIOT =</text>
+        <text x="500" y="150" font-family="Courier New" font-weight="bold" font-size="40" fill="#ff3b3b" text-anchor="middle" style="filter:drop-shadow(0 0 6px #f00)">🏀? 🏐? 🤾?</text>
+        <text x="500" y="185" font-family="Courier New" font-size="13" fill="#ffc93c" text-anchor="middle">JOUEURS SUR LE TERRAIN / ÉQUIPE</text>`
+        :`<text x="440" y="155" font-family="Courier New" font-weight="bold" font-size="50" fill="#2a0505" text-anchor="middle">88</text><text x="560" y="155" font-family="Courier New" font-weight="bold" font-size="50" fill="#2a0505" text-anchor="middle">88</text>`}
+      <rect x="490" y="200" width="20" height="30" fill="#555"/>`)}
+    ${H('gradins',"Gradins",`${range(4).map(k=>`<rect x="0" y="${150+k*45}" width="${280-k*30}" height="45" fill="${['#2a3d7a','#22336a','#1b2b5c','#15224d'][k]}"/>
+      ${range(6-k).map(j=>`<rect x="${12+j*44}" y="${154+k*45}" width="34" height="22" rx="5" fill="${['#ff7a1a','#19d3c5','#ffc93c'][(j+k)%3]}"/>`).join('')}`).join('')}`)}
+    ${H('panier',"Panier de basket",`<rect x="690" y="60" width="130" height="90" rx="4" fill="#f4f8ff" stroke="#c9d6f0" stroke-width="3"/><rect x="728" y="88" width="54" height="40" fill="none" stroke="#ff4d4d" stroke-width="4"/>
+      <rect x="749" y="150" width="12" height="172" fill="#4a5a80"/><ellipse cx="755" cy="142" rx="32" ry="7" fill="none" stroke="#ff7a1a" stroke-width="5"/>
+      ${range(6).map(i=>`<line x1="${726+i*11}" y1="144" x2="${732+i*8}" y2="174" stroke="#fff" stroke-opacity=".8"/>`).join('')}<circle cx="755" cy="158" r="15" fill="#ff7a1a"/>`)}
+    ${H('table',"Table de marque",`<rect x="290" y="390" width="190" height="16" rx="4" fill="#ddd"/><rect x="298" y="406" width="174" height="60" fill="#13214d"/><rect x="300" y="372" width="60" height="18" fill="#fdf6e3"/>
+      ${c.f('sifflet')?'':`<g transform="translate(420,378) rotate(-15)"><rect x="-14" y="-6" width="22" height="12" rx="5" fill="#ffc93c"/><circle cx="10" cy="0" r="10" fill="#ffc93c"/><circle cx="10" cy="0" r="4" fill="#b38a12"/></g>`}`)}
+    ${H('chariot',"Chariot à ballons",`<rect x="540" y="380" width="170" height="120" rx="6" fill="#8a8fa8" opacity=".25" stroke="#c9d6f0" stroke-width="4"/>
+      ${range(5).map(i=>`<line x1="${560+i*33}" y1="380" x2="${560+i*33}" y2="500" stroke="#c9d6f0" stroke-width="3"/>`).join('')}
+      ${[[575,470,'#ff7a1a'],[620,465,'#fff'],[665,470,'#2a6bff'],[598,435,'#ffc93c'],[645,435,'#ff7a1a']].map(([x,y,f])=>`<circle cx="${x}" cy="${y}" r="20" fill="${f}" opacity=".9"/>`).join('')}
+      ${open?`<polygon points="540,380 710,380 690,340 560,340" fill="#c9d6f0" opacity=".6"/>`:`<rect x="540" y="372" width="170" height="10" fill="#c9d6f0"/>${padlock(625,384,1.1)}`}
+      <circle cx="560" cy="510" r="9" fill="#333"/><circle cx="690" cy="510" r="9" fill="#333"/>`)}
+    ${H('banc',"Banc des remplaçants",`<rect x="40" y="470" width="220" height="16" rx="5" fill="#c98a4b"/><rect x="55" y="486" width="10" height="40" fill="#7a4a12"/><rect x="235" y="486" width="10" height="40" fill="#7a4a12"/><path d="M150,470 q5,-34 40,-30 q30,4 30,30z" fill="#2a6bff"/>`)}
+    ${H('porte',"Porte du gymnase",`<rect x="860" y="150" width="120" height="290" fill="#5a6585" stroke="#2c3350" stroke-width="5"/><rect x="876" y="170" width="88" height="80" fill="#9fe8ff" opacity=".35"/><rect x="866" y="290" width="16" height="36" rx="3" fill="#c9d6f0"/>
+      <g transform="translate(905,330)"><rect x="-6" y="-26" width="58" height="52" rx="8" fill="#ffc93c"/><path d="M4,-26 v-14 a14,14 0 0 1 28,0 v14" fill="none" stroke="#c9d6f0" stroke-width="5"/>${range(5).map(i=>`<rect x="${-2+i*10.5}" y="-8" width="8" height="18" fill="#13214d"/><text x="${2+i*10.5}" y="6" font-size="10" font-family="Arial Black" fill="#fff" text-anchor="middle">${'ABCDE'[i]}</text>`).join('')}</g>`)}
+    </svg>`;
+  },
+  hot:{
+    gradins(c){
+      const seats=range(3).map(r=>range(5).map(k=>`<button class="seat" data-act="s${r}${k}" style="background:${['#ff7a1a','#19d3c5','#ffc93c'][(r+k)%3]}">💺</button>`).join('')).join('<br>');
+      c.zoom('Les gradins',`<div style="text-align:center"><p>Des rangées de sièges… Cliquez pour regarder dessous.</p><div class="seats">${seats}</div></div>`,
+        new Proxy({},{get:(o,k)=>(c)=>{ if(k==='s13' && !c.f('tele')){ c.set('tele'); c.give('telecommande'); c.sfx('ok'); c.say("Sous ce siège : la <b>télécommande</b> du tableau d'affichage !"); c.closeZoom(); } else c.say(k==='s13'?"Il n'y a plus rien ici.":["Rien… à part un vieux ticket de bus.","Un papier de bonbon. Pas fair-play de jeter ça ici !","Rien sous ce siège.","Une pièce de 10 centimes. Pas utile.","Rien. Continuez à chercher !"][(k.charCodeAt(1)+k.charCodeAt(2))%5]); }}));
+    },
+    tableau(c){
+      if(c.f('tableau')) return c.say("Le tableau affiche : <b>CHARIOT = 🏀? 🏐? 🤾?</b> — joueurs sur le terrain par équipe.");
+      if(c.use('telecommande')){ c.set('tableau'); c.drop('telecommande'); c.sfx('ok'); c.say("Bip ! Le tableau s'allume : <b>CHARIOT = 🏀 ? 🏐 ? 🤾 ?</b> — « Joueurs sur le terrain, par équipe »."); return; }
+      c.say("Le tableau d'affichage est éteint. Il faudrait sa télécommande…");
+    },
+    chariot(c){
+      if(c.f('chariot')){
+        if(c.f('fiche')) return c.say("Le chariot ne contient plus que des ballons.");
+        c.set('fiche'); c.give('fiche_arbitre'); c.sfx('ok'); return c.say("Entre les ballons : une <b>fiche d'arbitre</b> ! Sélectionnez-la et cliquez 🔍 pour la lire.");
+      }
+      c.lock({title:'Cadenas du chariot',text:'Un cadenas à 3 chiffres.',kind:'digits',len:3,answer:'567',onOpen:()=>{c.set('chariot');c.say("Le chariot s'ouvre ! Il y a quelque chose entre les ballons…");}});
+    },
+    table(c){
+      if(!c.f('sifflet')){ c.set('sifflet'); c.give('sifflet'); c.sfx('ok'); return c.say("Sur la table de marque : un <b>sifflet doré</b> gravé « M.S. ». Gardez-le précieusement, il servira plus tard !"); }
+      c.say("La table de marque. La feuille de match est vierge.");
+    },
+    panier(c){ c.say("Un ballon est coincé dans le panier… Le Maître du Sifflet est vraiment taquin."); },
+    banc(c){ c.say("Un sac oublié sur le banc. Dedans, un mot : « Un bon arbitre connaît TOUTES les règles. » — M.S."); },
+    porte(c){ c.lock({title:'Cadenas à lettres',text:'Un cadenas à 5 lettres. « Seul un arbitre connaît le mot. »',kind:'letters',len:5,answer:'SPORT',onOpen:()=>c.finish()}); }
+  }
+});
+
+/* ---------- SALLE 3 : LE STADE ---------- */
+ROOMS.push({
+  id:3, file:'#salle3', name:'Le Stade', theme:'Athlétisme', letter:'I',
+  intro:"Le stade, la nuit… Brrr. J'ai éparpillé 4 cartes du saut en longueur aux quatre coins de la piste. Retrouvez-les et remettez-les dans l'ordre d'un VRAI saut pour ouvrir le portail. Et pas de faux départ : chez moi, c'est disqualification directe !",
+  outro:"Hmmm… Vous courez vite et vous réfléchissez vite. C'est agaçant. Voici votre troisième lettre. Profitez-en, la salle de gym est PIÉGÉE.",
+  exit:'portail',
+  questions:[
+    {at:[300,445], type:'qcm', title:"Le relais", q:"Dans une course de relais, le témoin doit être transmis…",
+     options:["N'importe où sur la piste","Dans la zone de transmission","Après la ligne d'arrivée","En le lançant à son coéquipier"], answer:1,
+     explain:"Le témoin passe de main en main <b>dans la zone de transmission</b>.",
+     clue:"Le témoin de relais posé sur la piste est creux… Regardez dedans !"},
+    {at:[470,265], type:'qcm', title:"Faux départ !", q:"En compétition officielle d'athlétisme, un sprinteur qui fait un faux départ est…",
+     options:["Pardonné : on recommence","Disqualifié","Pénalisé de 10 mètres","Obligé de courir pieds nus"], answer:1,
+     explain:"Il est <b>disqualifié</b> dès le premier faux départ. En EPS, le prof peut être plus clément.",
+     clue:"Les 4 cartes sont : sur le panneau des records, sous une haie, dans le local matériel et dans le sable (prenez le râteau !)."},
+    {at:[60,470], type:'qcm', title:"Le lancer de poids", q:"Au lancer de poids, comment doit-on lancer l'engin ?",
+     options:["Bras tendu, comme une balle","En le poussant depuis le cou / l'épaule","À deux mains au-dessus de la tête","En le faisant rouler"], answer:1,
+     explain:"Le poids est <b>poussé</b>, il part collé au cou. Lancer bras tendu est interdit (et dangereux).",
+     clue:"Ordre d'un saut en longueur : course d'élan → impulsion → suspension → réception. Lisez les chiffres des cartes dans cet ordre !"}
+  ],
+  hints:[
+    {until:'cartes4', text:"Il y a 4 cartes à trouver : sur le panneau des records, sous les haies, dans le bac à sable et dans le local matériel."},
+    {until:'cle', text:"Le local est fermé à clé. Un objet de relais est creux… regardez-le de près."},
+    {until:'sable', text:"Pour fouiller le sable, il faut un outil. Prenez le râteau, sélectionnez-le, puis cliquez sur le bac à sable."},
+    {until:'done', text:"Ordre du saut en longueur : course d'élan → impulsion → suspension → réception. Lisez le chiffre de chaque carte dans cet ordre."}
+  ],
+  solution:["Panneau des records → carte « Course d'élan » = 3.","Haies → carte « Impulsion » = 8.","Témoin de relais (creux) → clé du local.","Clé sur le local matériel → carte « Suspension » = 1.","Prendre le râteau, l'utiliser sur le bac à sable → carte « Réception » = 6.","Ordre du saut : élan, impulsion, suspension, réception → portail <b>3816</b>."],
+  render(c){
+    const nb=['elan','impulsion','suspension','reception'].filter(k=>c.f(k)).length;
+    return `<svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="r3s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#050b22"/><stop offset="1" stop-color="#1b2b66"/></linearGradient>
+      <radialGradient id="r3l" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#fff6c8" stop-opacity=".7"/><stop offset="1" stop-color="#fff6c8" stop-opacity="0"/></radialGradient></defs>
+    <rect width="1000" height="560" fill="url(#r3s)"/>
+    ${range(40).map(i=>`<circle cx="${(i*137)%1000}" cy="${(i*53)%110}" r="${i%3?1:1.6}" fill="#fff" opacity=".7"/>`).join('')}
+    ${[300,700].map(x=>`<rect x="${x-4}" y="20" width="8" height="120" fill="#3a4a7a"/><rect x="${x-34}" y="12" width="68" height="20" rx="3" fill="#cfd8ff"/><circle cx="${x}" cy="22" r="90" fill="url(#r3l)" opacity=".6"/>`).join('')}
+    <rect y="130" width="1000" height="70" fill="#22346e"/>${range(120).map(i=>`<circle cx="${8+i*8.3}" cy="${142+(i%4)*14}" r="3.4" fill="${['#ff7a1a','#19d3c5','#ffc93c','#ff4d8d','#9fb0d9'][i%5]}" opacity=".8"/>`).join('')}
+    <rect y="200" width="1000" height="360" fill="#2f9e55"/>${range(10).map(i=>`<rect y="${200+i*36}" width="1000" height="18" fill="#000" opacity=".04"/>`).join('')}
+    <rect y="300" width="1000" height="130" fill="#c2412b"/>${range(6).map(i=>`<line x1="0" y1="${300+i*26}" x2="1000" y2="${300+i*26}" stroke="#fff" stroke-width="2.5"/>`).join('')}
+    ${range(5).map(i=>`<text x="40" y="${320+i*26}" font-family="Arial Black" font-size="15" fill="#fff">${i+1}</text>`).join('')}
+    ${H('local',"Local matériel",`<rect x="20" y="170" width="210" height="140" fill="#8a3b2a"/>${range(7).map(i=>`<line x1="20" y1="${180+i*18}" x2="230" y2="${180+i*18}" stroke="#5a2418" stroke-width="2"/>`).join('')}
+      <polygon points="10,170 125,130 240,170" fill="#4a2010"/><rect x="40" y="186" width="80" height="20" fill="#fdf6e3"/><text x="80" y="201" font-family="Arial Black" font-size="11" text-anchor="middle" fill="#13214d">MATÉRIEL</text>
+      ${c.f('local')?`<rect x="130" y="210" width="70" height="100" fill="#0a0a0a"/><polygon points="130,210 108,218 108,304 130,310" fill="#7a8bb5"/>`:`<rect x="130" y="210" width="70" height="100" fill="#7a8bb5" stroke="#4a5a80" stroke-width="3"/><circle cx="188" cy="262" r="5" fill="#333"/>`}`)}
+    ${H('panneau',"Panneau des records",`<rect x="270" y="215" width="6" height="85" fill="#555"/><rect x="434" y="215" width="6" height="85" fill="#555"/><rect x="255" y="150" width="200" height="95" rx="6" fill="#13214d" stroke="#ffc93c" stroke-width="3"/>
+      <text x="355" y="172" font-family="Arial Black" font-size="13" text-anchor="middle" fill="#ffc93c">RECORDS DU COLLÈGE</text>${range(3).map(k=>`<rect x="272" y="${184+k*14}" width="${120+k*12}" height="5" fill="#9fb0d9"/>`).join('')}
+      ${c.f('elan')?'':`<rect x="408" y="186" width="34" height="46" rx="4" fill="#fdf6e3" stroke="#ff7a1a" stroke-width="3" transform="rotate(8 425 209)"/>`}`)}
+    ${H('haies',"Haies",`${[480,580,680].map((x,i)=>i===1?`<g><rect x="${x}" y="398" width="90" height="10" fill="#fff" transform="rotate(-12 ${x+45} 403)"/><rect x="${x+6}" y="405" width="80" height="6" fill="#222" transform="rotate(-12 ${x+45} 403)"/>${c.f('impulsion')?'':`<rect x="${x+30}" y="412" width="30" height="18" rx="3" fill="#fdf6e3" stroke="#19d3c5" stroke-width="3"/>`}</g>`
+      :`<g><rect x="${x}" y="340" width="90" height="12" fill="#fff"/><rect x="${x}" y="352" width="90" height="6" fill="#222"/><rect x="${x+4}" y="352" width="6" height="50" fill="#ddd"/><rect x="${x+80}" y="352" width="6" height="50" fill="#ddd"/><rect x="${x-6}" y="400" width="26" height="6" fill="#ddd"/><rect x="${x+70}" y="400" width="26" height="6" fill="#ddd"/></g>`).join('')}`)}
+    ${H('temoin',"Témoin de relais",`<rect x="800" y="330" width="100" height="70" fill="${T}"/><rect x="820" y="360" width="56" height="14" rx="7" fill="#ffc93c" stroke="#b38a12" stroke-width="2" transform="rotate(-20 848 367)"/><ellipse cx="822" cy="376" rx="4" ry="7" fill="#5a3a0a" transform="rotate(-20 848 367)"/>`)}
+    ${H('sable',"Bac à sable du saut en longueur",`<rect x="560" y="460" width="300" height="80" rx="8" fill="#e9c98a" stroke="#c9a060" stroke-width="5"/>${range(8).map(i=>`<path d="M${580+i*34},${485+(i%3)*12} q10,-6 20,0" stroke="#c9a060" stroke-width="2" fill="none"/>`).join('')}
+      ${c.f('reception')?`${range(6).map(i=>`<line x1="${580+i*45}" y1="470" x2="${600+i*45}" y2="530" stroke="#b8925a" stroke-width="2"/>`).join('')}`:''}<rect x="510" y="470" width="40" height="60" fill="#fff"/>`)}
+    ${c.f('rateau')?'':H('rateau',"Râteau",`<rect x="890" y="395" width="100" height="150" fill="${T}"/><line x1="900" y1="540" x2="950" y2="420" stroke="#a0703a" stroke-width="7"/><rect x="925" y="404" width="56" height="10" rx="3" fill="#8a8fa8" transform="rotate(22 953 409)"/>${range(6).map(i=>`<line x1="${930+i*9}" y1="${415+i*3.5}" x2="${926+i*9}" y2="${428+i*3.5}" stroke="#8a8fa8" stroke-width="3"/>`).join('')}`)}
+    ${H('portail',"Portail du stade",`<rect x="820" y="160" width="170" height="140" fill="none" stroke="#c9d6f0" stroke-width="6"/>${range(9).map(i=>`<line x1="${830+i*19}" y1="160" x2="${830+i*19}" y2="300" stroke="#c9d6f0" stroke-width="4"/>`).join('')}
+      <line x1="905" y1="160" x2="905" y2="300" stroke="#8a8fa8" stroke-width="8"/>${padlock(905,226,1.4)}`)}
+    ${H('banc',"Banc",`<rect x="250" y="470" width="200" height="14" rx="5" fill="#c98a4b"/><rect x="265" y="484" width="9" height="36" fill="#7a4a12"/><rect x="425" y="484" width="9" height="36" fill="#7a4a12"/>`)}
+    <g><rect x="20" y="20" width="140" height="34" rx="10" fill="#081028" opacity=".85"/><text x="90" y="43" font-family="Arial Black" font-size="15" text-anchor="middle" fill="#ffc93c">🃏 Cartes : ${nb}/4</text></g>
+    </svg>`;
+  },
+  hot:{
+    panneau(c){
+      c.zoom('Le panneau des records',`<div class="letter-paper" style="transform:none;background:#13214d;color:#fff;font-family:var(--font-body)">
+        <div style="text-align:center;font-family:var(--font-title);color:var(--gold);font-size:20px">🏆 RECORDS DU COLLÈGE</div>
+        <ul style="line-height:1.8"><li>Vitesse 50 m : 6 s 9</li><li>Saut en longueur : 5 m 12</li><li>Lancer de poids (3 kg) : 11 m 40</li><li>Demi-fond : 1 tour de piste = 400 m</li></ul>
+        <p style="color:#ff9c9c">⚠ Rappel du juge : « À vos marques… Prêts… » puis le signal. Partir avant = <b>faux départ</b> !</p>
+        ${c.f('elan')?'':`<div style="text-align:center"><button class="btn small" data-act="prendre">🃏 Prendre la carte punaisée</button></div>`}</div>`,
+        {prendre(c){ c.set('elan'); c.give('carte_elan'); c.sfx('ok'); c.say("Carte trouvée : <b>« Course d'élan »</b> ! (1/4)"); c.closeZoom(); }});
+    },
+    haies(c){
+      if(c.f('impulsion')) return c.say("Les haies… Attention : on les franchit, on ne les renverse pas !");
+      c.set('impulsion'); c.give('carte_impulsion'); c.sfx('ok'); c.say("Sous la haie renversée : la carte <b>« Impulsion »</b> !");
+    },
+    temoin(c){
+      if(c.f('cle')) return c.say("Le témoin est vide maintenant. Au relais, on le transmet dans la zone de transmission !");
+      c.set('cle'); c.give('cle_local'); c.sfx('ok'); c.say("Le témoin de relais est creux… et il y a quelque chose dedans : <b>la clé du local matériel</b> !");
+    },
+    rateau(c){ c.set('rateau'); c.give('rateau'); c.sfx('ok'); c.say("Vous prenez le <b>râteau</b>. Il sert à égaliser le sable du saut en longueur."); },
+    sable(c){
+      if(c.f('reception')) return c.say("Le sable est bien ratissé. La mesure se fait de la planche à la marque la plus proche dans le sable.");
+      if(c.use('rateau')){ c.set('reception'); c.drop('rateau'); c.give('carte_reception'); c.sfx('ok'); return c.say("Vous ratissez le sable… et vous découvrez la carte <b>« Réception »</b> !"); }
+      c.say("Le bac à sable. Quelque chose brille sous le sable, mais impossible de fouiller à mains nues… Il faudrait un outil.");
+    },
+    local(c){
+      if(!c.f('local')){
+        if(c.use('cle_local')){ c.set('local'); c.drop('cle_local'); c.sfx('ok'); c.say("La clé tourne : le local matériel est ouvert ! Cliquez dessus pour entrer."); return; }
+        return c.say("Le local matériel est fermé à clé.");
+      }
+      c.zoom('Le local matériel',`<div style="text-align:center"><svg viewBox="0 0 600 300" style="width:100%;border-radius:12px;background:#2a1a10">
+        ${[90,190].map(y=>`<rect x="20" y="${y}" width="560" height="10" fill="#7a4a12"/>`).join('')}
+        ${range(5).map(i=>`<circle cx="${60+i*40}" cy="74" r="16" fill="#555"/>`).join('')}${range(6).map(i=>`<polygon points="${330+i*36},90 ${346+i*36},50 ${362+i*36},90" fill="${['#ff7a1a','#ffc93c','#19d3c5'][i%3]}"/>`).join('')}
+        ${range(4).map(i=>`<rect x="${50+i*30}" y="150" width="14" height="40" rx="6" fill="#ffc93c"/>`).join('')}<circle cx="300" cy="170" r="20" fill="#ddd"/><circle cx="300" cy="170" r="14" fill="#13214d"/>
+        <rect x="380" y="150" width="70" height="40" fill="#fdf6e3"/><text x="415" y="175" font-size="11" text-anchor="middle" font-family="Arial">mètre</text>
+        ${c.f('suspension')?'':`<g data-act="carte" style="cursor:pointer"><rect x="490" y="135" width="44" height="56" rx="5" fill="#fdf6e3" stroke="#a46bff" stroke-width="4"/><text x="512" y="170" font-size="22" text-anchor="middle">🃏</text></g>`}
+        <rect x="200" y="225" width="200" height="60" fill="#fdf6e3" transform="rotate(-2 300 255)"/><text x="300" y="250" font-family="Courier New" font-size="13" text-anchor="middle" fill="#2b2112">Le portail s'ouvre avec</text><text x="300" y="270" font-family="Courier New" font-size="13" text-anchor="middle" fill="#2b2112">les 4 cartes… dans l'ordre d'un VRAI saut !</text>
+        </svg><p>Poids, plots, témoins, chronomètre, mètre ruban… ${c.f('suspension')?'':'Et sur l\'étagère du bas, une carte !'}</p></div>`,
+        {carte(c){ c.set('suspension'); c.give('carte_suspension'); c.sfx('ok'); c.say("Carte trouvée : <b>« Suspension »</b> !"); c.closeZoom(); }});
+    },
+    banc(c){ c.say("Un banc. Quelqu'un y a oublié une gourde : bien vu, on boit régulièrement pendant l'effort !"); },
+    portail(c){ c.lock({title:'Cadenas du portail',text:'Un cadenas à 4 chiffres.',kind:'digits',len:4,answer:'3816',onOpen:()=>c.finish()}); }
+  },
+  check(c){ if(['elan','impulsion','suspension','reception'].every(k=>c.f(k))) c.set('cartes4'); }
+});
+
+/* ---------- SALLE 4 : LA SALLE DE GYM ---------- */
+ROOMS.push({
+  id:4, file:'#salle4', name:'La Salle de gym', theme:'Gymnastique, acrosport & sécurité', letter:'U',
+  intro:"Bienvenue dans mon piège préféré ! J'ai caché <b>4 DANGERS</b> dans cette salle de gym. Tant qu'elle ne sera pas sécurisée, mon caisson restera fermé. Ensuite, on verra si vous êtes de bons juges en acrosport… Personne n'a jamais réussi. Enfin, personne n'a jamais essayé. Mais quand même !",
+  outro:"Pfff… Salle sécurisée, figures validées. Vous seriez presque de bons profs d'EPS. Voici votre lettre. Mais à l'infirmerie, c'est votre cœur qui va lâcher… Mouahaha !",
+  exit:'porte',
+  questions:[
+    {at:[245,250], type:'qcm', title:"Qui est en haut ?", q:"En acrosport, comment appelle-t-on l'élève qui est <b>porté</b> ?",
+     options:["Le porteur","Le voltigeur","Le pareur","Le juge"], answer:1,
+     explain:"Le <b>voltigeur</b> est porté, le <b>porteur</b> soutient, le <b>pareur</b> assure la sécurité.",
+     clue:"Pour la flaque, il faut de quoi éponger : regardez dans le placard !"},
+    {at:[935,180], type:'qcm', title:"L'ange gardien", q:"Quel est le rôle du <b>pareur</b> ?",
+     options:["Assurer la sécurité en aidant le gymnaste","Donner une note","Applaudir","Faire la figure à sa place"], answer:0,
+     explain:"Le pareur est proche, attentif, prêt à aider à la montée, pendant la tenue et à la descente.",
+     clue:"La barre fixe n'a pas de tapis dessous : prenez-en un sur la pile au fond à droite."},
+    {at:[620,520], type:'tf', title:"Les appuis", q:"Vrai ou faux ?",
+     items:[{s:"Le voltigeur peut monter au milieu du dos (lombaires) du porteur.",a:false},{s:"On prend appui sur les épaules et le bassin du porteur.",a:true},{s:"On peut faire de la gym en chaussettes sur les tapis.",a:false},{s:"Une figure se tient 3 secondes, immobile.",a:true}],
+     explain:"Appuis sur les zones solides, jamais au milieu du dos ; pieds nus ou chaussons.",
+     clue:"Sur la fiche du juge, une figure est sûre si : appuis sur zones solides + un pareur + tenue 3 s + pas de saut. Il y en a 3 !"}
+  ],
+  hints:[
+    {until:'danger4', text:"Les 4 dangers : un trou entre deux tapis, un objet sur une zone de réception, de l'eau au sol, un agrès sans tapis dessous. Certains nécessitent un objet (regardez le placard et la pile de tapis)."},
+    {until:'plinth', text:"La salle est sécurisée ! Cliquez sur le caisson (plinth) rouge."},
+    {until:'done', text:"Relisez l'affiche « Sécurité en acrosport » : appuis sur les épaules, le bassin ou les cuisses près des hanches, jamais au milieu du dos ; toujours un pareur ; tenue 3 s ; on ne saute pas pour descendre."}
+  ],
+  solution:["Cliquer sur le trou entre les tapis de la poutre → tapis rapprochés.","Cliquer sur le ballon posé sur la réception du caisson → rangé.","Placard → serpillière ; l'utiliser sur la flaque d'eau.","Pile de tapis → tapis de réception ; l'utiliser sous la barre fixe.","Caisson rouge → fiche acrosport.","Figures en sécurité : 2, 4 et 6 → porte <b>246</b>."],
+  render(c){
+    const n=['trou','ballon','flaque','barre'].filter(k=>c.f(k)).length;
+    return `<svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="r4w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a1f6e"/><stop offset="1" stop-color="#22336e"/></linearGradient></defs>
+    <rect width="1000" height="560" fill="url(#r4w)"/>${range(10).map(i=>`<rect x="${i*100}" y="0" width="50" height="300" fill="#fff" opacity=".03"/>`).join('')}
+    <rect y="300" width="1000" height="260" fill="#4a4e6a"/>${range(12).map(i=>`<line x1="${i*100}" y1="300" x2="${i*100-80}" y2="560" stroke="#000" stroke-opacity=".15"/>`).join('')}
+    ${H('placard',"Placard",`<rect x="20" y="90" width="120" height="210" fill="#8a6a4a" stroke="#4a3624" stroke-width="4"/><line x1="80" y1="90" x2="80" y2="300" stroke="#4a3624" stroke-width="4"/><circle cx="72" cy="200" r="5" fill="#ddd"/><circle cx="88" cy="200" r="5" fill="#ddd"/>`)}
+    ${H('affiche',"Affiche « Sécurité en acrosport »",`<rect x="160" y="60" width="140" height="170" fill="#fdf6e3"/><rect x="160" y="60" width="140" height="30" fill="#ff4d6d"/><text x="230" y="81" font-family="Arial Black" font-size="13" text-anchor="middle" fill="#fff">SÉCURITÉ</text>
+      <circle cx="205" cy="125" r="10" fill="#13214d"/><path d="M205,135 v30 M190,148 h30" stroke="#13214d" stroke-width="5"/><circle cx="255" cy="115" r="10" fill="#ff7a1a"/><path d="M255,125 v30" stroke="#ff7a1a" stroke-width="5"/>${range(3).map(k=>`<rect x="175" y="${185+k*12}" width="110" height="5" fill="#8a7a5a"/>`).join('')}`)}
+    ${H('porte',"Porte de sortie",`<rect x="330" y="90" width="120" height="210" fill="#5a6585" stroke="#2c3350" stroke-width="5"/><rect x="345" y="110" width="90" height="60" fill="#9fe8ff" opacity=".3"/><rect x="338" y="200" width="14" height="30" rx="3" fill="#c9d6f0"/>${padlock(390,220,1.3)}`)}
+    <rect x="170" y="330" width="290" height="16" rx="5" fill="#d9a25f"/><rect x="200" y="346" width="10" height="56" fill="#8a8fa8"/><rect x="420" y="346" width="10" height="56" fill="#8a8fa8"/>
+    <rect x="150" y="400" width="155" height="44" fill="#2f74d0" stroke="#1d4f99" stroke-width="3"/>
+    <rect x="${c.f('trou')?305:340}" y="400" width="${c.f('trou')?175:140}" height="44" fill="#2f74d0" stroke="#1d4f99" stroke-width="3"/>
+    ${H('trou',c.f('trou')?"Tapis de la poutre":"Entre les tapis de la poutre",`<rect x="290" y="392" width="65" height="60" fill="${T}"/>${c.f('trou')?'':`<rect x="305" y="400" width="35" height="44" fill="#1b1d2e"/>`}`)}
+    <line x1="540" y1="120" x2="540" y2="440" stroke="#b9c0d8" stroke-width="8"/><line x1="700" y1="120" x2="700" y2="440" stroke="#b9c0d8" stroke-width="8"/><line x1="530" y1="140" x2="710" y2="140" stroke="#f0d9b5" stroke-width="9"/>
+    ${H('barre',c.f('barre')?"Barre fixe":"Sous la barre fixe",`<rect x="520" y="380" width="200" height="80" fill="${T}"/>${c.f('barre')?`<rect x="530" y="408" width="180" height="44" fill="#2f74d0" stroke="#1d4f99" stroke-width="3"/>`:`<rect x="550" y="420" width="140" height="18" fill="#3c3f57"/>`}`)}
+    ${H('anneaux',"Anneaux",`<line x1="790" y1="0" x2="790" y2="120" stroke="#ccc" stroke-width="3"/><line x1="850" y1="0" x2="850" y2="120" stroke="#ccc" stroke-width="3"/><circle cx="790" cy="135" r="16" fill="none" stroke="#d9a25f" stroke-width="7"/><circle cx="850" cy="135" r="16" fill="none" stroke="#d9a25f" stroke-width="7"/>`)}
+    ${H('pile',"Pile de tapis",`${range(c.f('tapis')?2:3).map(k=>`<rect x="880" y="${284-k*22}" width="110" height="22" fill="#2f74d0" stroke="#1d4f99" stroke-width="3"/>`).join('')}`)}
+    ${H('plinth',"Caisson (plinth)",`<polygon points="760,410 900,410 885,340 775,340" fill="#c0392b"/><polygon points="775,340 885,340 875,305 785,305" fill="#e74c3c"/><rect x="785" y="298" width="90" height="10" rx="4" fill="#f4e2c6"/>
+      ${c.f('plinth')?`<rect x="790" y="350" width="80" height="44" fill="#1a0a05"/>`:padlock(830,362,1.1)}`)}
+    <rect x="740" y="430" width="200" height="40" fill="#2f74d0" stroke="#1d4f99" stroke-width="3"/>
+    ${c.f('ballon')?'':H('ballon',"Ballon",`<circle cx="840" cy="440" r="20" fill="#ff7a1a"/><path d="M820,440 h40 M840,420 v40" stroke="#5a2400" stroke-width="2"/>`)}
+    ${c.f('flaque')?'':H('flaque',"Flaque d'eau",`<ellipse cx="300" cy="510" rx="90" ry="20" fill="#9ae6ff" opacity=".7"/><rect x="350" y="486" width="50" height="18" rx="8" fill="#9ae6ff" stroke="#3aa0c8" stroke-width="2" transform="rotate(-10 375 495)"/>`)}
+    <g><rect x="20" y="20" width="190" height="34" rx="10" fill="#081028" opacity=".85"/><text x="115" y="43" font-family="Arial Black" font-size="15" text-anchor="middle" fill="${n===4?'#3ddc84':'#ff4d6d'}">⚠ Dangers : ${n}/4</text></g>
+    </svg>`;
+  },
+  hot:{
+    affiche(c){ c.zoom('Affiche « Sécurité en acrosport »',`<div class="letter-paper" style="transform:none"><div style="text-align:center;font-weight:bold;font-size:20px;color:#c0392b">⚠ SÉCURITÉ EN ACROSPORT</div><ul style="line-height:1.7">
+      <li><b>Porteur</b> : il soutient. <b>Voltigeur</b> : il est porté. <b>Pareur</b> : il assure la sécurité.</li>
+      <li>Le voltigeur prend appui sur les <b>zones solides</b> du porteur : épaules, bassin, cuisses près des hanches.</li>
+      <li><b>Jamais</b> d'appui au milieu du dos (les lombaires) !</li><li>Toute figure en hauteur a <b>au moins un pareur</b>.</li>
+      <li>La figure est tenue <b>3 secondes</b>, immobile.</li><li>On démonte <b>dans l'ordre inverse</b>, en contrôlant. On ne saute pas !</li></ul></div>`); },
+    trou(c){ if(c.f('trou')) return c.say("Les tapis sont bien collés : pas de trou où se tordre la cheville."); c.set('trou'); c.sfx('ok'); c.say("Danger corrigé : il y avait un <b>trou entre les deux tapis</b>. Vous les rapprochez !"); },
+    ballon(c){ c.set('ballon'); c.sfx('ok'); c.say("Danger corrigé : un <b>ballon sur la zone de réception</b> ! On pourrait se tordre la cheville en atterrissant dessus. Rangé !"); },
+    flaque(c){
+      if(c.use('serpilliere')){ c.set('flaque'); c.drop('serpilliere'); c.sfx('ok'); return c.say("Danger corrigé : la <b>flaque d'eau</b> est épongée. Un sol mouillé, ça glisse !"); }
+      c.say("De l'eau renversée sur le sol ! Danger : ça glisse… Il faudrait de quoi éponger.");
+    },
+    barre(c){
+      if(c.f('barre')) return c.say("Le tapis de réception est bien placé sous la barre.");
+      if(c.use('tapis')){ c.set('barre'); c.drop('tapis'); c.sfx('ok'); return c.say("Danger corrigé : la barre fixe a maintenant un <b>tapis de réception</b> !"); }
+      c.say("Pas de tapis sous la barre fixe : en cas de chute, c'est le sol dur ! Il faudrait un tapis…");
+    },
+    placard(c){ if(c.f('serp')) return c.say("Le placard : des chasubles, des cerceaux… rien d'autre d'utile."); c.set('serp'); c.give('serpilliere'); c.sfx('ok'); c.say("Dans le placard : une <b>serpillière</b>."); },
+    pile(c){ if(c.f('tapis')) return c.say("Il reste des tapis, mais un seul suffit."); c.set('tapis'); c.give('tapis'); c.sfx('ok'); c.say("Vous prenez un <b>tapis de réception</b> sur la pile."); },
+    anneaux(c){ c.say("Les anneaux sont bien réglés. Rien à signaler."); },
+    plinth(c){
+      if(c.f('plinth')) return c.say("Le caisson est vide maintenant.");
+      if(!c.f('danger4')) return c.say("Le caisson est verrouillé. Une étiquette : « Je m'ouvrirai quand la salle sera <b>SÉCURISÉE</b>. »");
+      c.set('plinth'); c.give('fiche_acro'); c.sfx('ok'); c.say("Clac ! Le caisson s'ouvre : une <b>fiche du juge d'acrosport</b>. Lisez-la (🔍 dans l'inventaire).");
+    },
+    porte(c){ c.lock({title:'Cadenas de la porte',text:'Un cadenas à 3 chiffres.',kind:'digits',len:3,answer:'246',onOpen:()=>c.finish()}); }
+  },
+  check(c){ if(['trou','ballon','flaque','barre'].every(k=>c.f(k)) && !c.f('danger4')){ c.set('danger4'); c.say("✅ Les 4 dangers sont corrigés ! On entend un « clic » du côté du caisson…"); } }
+});
+
+/* ---------- SALLE 5 : L'INFIRMERIE ---------- */
+ROOMS.push({
+  id:5, file:'#salle5', name:"L'Infirmerie", theme:'Santé, cœur & échauffement', letter:'Q',
+  intro:"Bip… bip… bip… C'est votre cœur qui panique ? Ma porte est commandée par un boîtier électronique : seul un <b>échauffement parfait</b> l'ouvrira. Encore faut-il l'allumer… Et dépêchez-vous : à la fin du chrono, je transforme la Coupe d'Or en sifflet géant !",
+  outro:"Non… NON ! Vous avez réussi l'échauffement parfait ?! … Très bien. Venez dans ma Salle des Trophées. Nous allons nous rencontrer, enfin. Tweeeeeet.",
+  exit:'boitier',
+  questions:[
+    {at:[245,280], type:'qcm', title:"Prends ton pouls", q:"Où peut-on facilement prendre son pouls ?",
+     options:["Au poignet ou sur le côté du cou","Au genou","Au coude","Sur le front"], answer:0,
+     explain:"Au <b>poignet</b> ou au <b>cou</b>, avec l'index et le majeur. 15 s × 4 = battements par minute.",
+     clue:"La meilleure boisson pour l'effort cache une clé… Soulevez-la !"},
+    {at:[700,470], type:'qcm', title:"Le calcul du cœur", q:"Fréquence cardiaque max théorique = 220 − âge. Pour un élève de <b>12 ans</b>, ça donne…",
+     options:["198","208","212","232"], answer:1,
+     explain:"220 − 12 = <b>208</b>. Pour Léo, regardez son âge dans le dossier !",
+     clue:"L'armoire : faites le même calcul avec l'âge de Léo (dossier dans le tiroir du bureau)."},
+    {at:[180,395], type:'tf', title:"Bien récupérer", q:"Vrai ou faux ?",
+     items:[{s:"Le sommeil aide le corps à récupérer.",a:true},{s:"S'étirer longtemps à froid remplace l'échauffement.",a:false},{s:"Il faut attendre d'avoir très soif pour boire.",a:false},{s:"Bouger régulièrement est bon pour le cœur et le moral.",a:true}],
+     explain:"Sommeil, eau, alimentation, échauffement : les piliers pour progresser sans se blesser.",
+     clue:"Un échauffement va du plus doux au plus intense, SANS pause immobile. Les étirements longs n'en font pas partie !"}
+  ],
+  hints:[
+    {until:'cle', text:"Une des 4 bouteilles est la meilleure boisson pour l'effort… Regardez dessous !"},
+    {until:'tiroir', text:"La clé ouvre le tiroir du bureau. Sélectionnez-la puis cliquez sur le bureau."},
+    {until:'armoire', text:"L'affiche du cœur donne une formule. Le dossier du tiroir donne l'âge de Léo. 220 − 13 = ?"},
+    {until:'power', text:"Il y a une pile dans l'armoire : utilisez-la sur le boîtier à côté de la porte."},
+    {until:'done', text:"Un échauffement se fait du plus doux au plus intense, sans pause immobile : course douce → gammes dynamiques → exercices spécifiques → efforts courts et rapides. Les étirements longs immobiles ne font pas partie de l'échauffement !"}
+  ],
+  solution:["Bouteilles : soulever la bouteille d'EAU → clé du tiroir.","Clé sur le bureau → dossier : Léo, 13 ans.","Affiche du cœur : FC max théorique = 220 − âge → <b>207</b> = cadenas de l'armoire.","Armoire → pile ; utiliser la pile sur le boîtier près de la porte.","Boîtier : course douce → gammes dynamiques → exercices spécifiques → efforts courts et rapides (piège : étirements longs immobiles).","La porte s'ouvre."],
+  render(c){
+    return `<svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="r5w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c4b56"/><stop offset="1" stop-color="#0a2a45"/></linearGradient></defs>
+    <rect width="1000" height="560" fill="url(#r5w)"/>${range(25).map(i=>`<line x1="${i*40}" y1="0" x2="${i*40}" y2="380" stroke="#19d3c5" stroke-opacity=".06"/>`).join('')}
+    <rect y="380" width="1000" height="180" fill="#dfe8ee"/>${range(12).map(i=>`<line x1="${i*90}" y1="380" x2="${i*90-50}" y2="560" stroke="#b8c8d4"/>`).join('')}
+    ${H('armoire',"Armoire à pharmacie",`<rect x="30" y="80" width="170" height="250" rx="6" fill="#f4f8ff" stroke="#9fb0d9" stroke-width="4"/><line x1="115" y1="80" x2="115" y2="330" stroke="#9fb0d9" stroke-width="3"/>
+      <rect x="95" y="110" width="40" height="40" fill="${T}"/><rect x="105" y="105" width="20" height="56" fill="#3ddc84"/><rect x="87" y="123" width="56" height="20" fill="#3ddc84"/>
+      ${c.f('armoire')?`<polygon points="115,80 75,92 75,318 115,330" fill="#dfe8ee" stroke="#9fb0d9" stroke-width="3"/>`:padlock(115,230,1.3)}`)}
+    ${H('affiche',"Affiche « Le cœur »",`<rect x="230" y="70" width="140" height="180" fill="#fdf6e3"/><path d="M300,180 C250,140 268,100 300,128 C332,100 350,140 300,180z" fill="#ff4d6d"/><text x="300" y="98" font-family="Arial Black" font-size="15" text-anchor="middle" fill="#c0392b">LE CŒUR</text>
+      <text x="300" y="215" font-family="Courier New" font-weight="bold" font-size="14" text-anchor="middle" fill="#13214d">220 − âge</text>`)}
+    ${H('ecran',"Moniteur cardiaque",`<rect x="400" y="60" width="240" height="140" rx="10" fill="#03141b" stroke="#19d3c5" stroke-width="4"/>
+      <polyline points="410,140 470,140 485,110 500,170 515,90 530,150 560,140 630,140" fill="none" stroke="#3ddc84" stroke-width="4" stroke-dasharray="500" stroke-dashoffset="500"><animate attributeName="stroke-dashoffset" from="500" to="0" dur="2s" repeatCount="indefinite"/></polyline>
+      <text x="625" y="88" font-family="Courier New" font-weight="bold" font-size="20" fill="#3ddc84" text-anchor="end">♥ 128</text>`)}
+    ${H('bureau',"Bureau",`<rect x="380" y="290" width="270" height="16" fill="#a0703a"/><rect x="390" y="306" width="120" height="110" fill="#8a5a2a"/><rect x="398" y="320" width="104" height="36" fill="#a0703a" stroke="#5a3a1a" stroke-width="2"/><rect x="440" y="334" width="20" height="6" rx="3" fill="#ddd"/>
+      <rect x="630" y="306" width="12" height="110" fill="#8a5a2a"/><rect x="560" y="262" width="56" height="28" fill="#f4f8ff"/>${c.f('tiroir')?`<rect x="398" y="356" width="104" height="18" fill="#3a2410"/>`:''}`)}
+    ${['soda','energie','eau','jus'].map((k,i)=>{const x=690+i*42, col=['#c0392b','#3ddc84','#9ae6ff','#ff9f1a'][i];
+      return H('b_'+k,['Bouteille de soda','Boisson énergisante','Bouteille d\'eau','Jus de fruits sucré'][i],`<rect x="${x}" y="${k==='energie'?270:240}" width="30" height="${k==='energie'?50:80}" rx="8" fill="${col}" stroke="#13214d" stroke-width="2"/><rect x="${x+8}" y="${k==='energie'?262:228}" width="14" height="14" rx="3" fill="#13214d"/>`)}).join('')}
+    <rect x="680" y="320" width="180" height="12" fill="#9fb0d9"/><rect x="690" y="332" width="8" height="80" fill="#9fb0d9"/><rect x="842" y="332" width="8" height="80" fill="#9fb0d9"/>
+    ${H('lit',"Lit de l'infirmerie",`<rect x="30" y="420" width="300" height="50" rx="6" fill="#f4f8ff" stroke="#9fb0d9" stroke-width="3"/><rect x="40" y="406" width="80" height="26" rx="10" fill="#fff" stroke="#9fb0d9" stroke-width="2"/><rect x="40" y="470" width="10" height="50" fill="#9fb0d9"/><rect x="310" y="470" width="10" height="50" fill="#9fb0d9"/><rect x="140" y="414" width="190" height="40" fill="#19d3c5" opacity=".6"/>`)}
+    ${H('boitier',"Boîtier électronique",`<rect x="885" y="150" width="70" height="90" rx="8" fill="#222" stroke="#555" stroke-width="3"/>${range(4).map(i=>`<circle cx="${905+(i%2)*30}" cy="${180+Math.floor(i/2)*30}" r="9" fill="${c.f('power')?['#ff7a1a','#19d3c5','#ffc93c','#ff4d8d'][i]:'#444'}"/>`).join('')}<circle cx="920" cy="160" r="4" fill="${c.f('power')?'#3ddc84':'#600'}"/>`)}
+    ${H('porte',"Porte de sortie",`<rect x="870" y="250" width="110" height="200" fill="#f4f8ff" stroke="#9fb0d9" stroke-width="5"/><rect x="884" y="268" width="82" height="60" fill="#9fe8ff" opacity=".5"/><rect x="878" y="360" width="14" height="30" rx="3" fill="#9fb0d9"/>`)}
+    </svg>`;
+  },
+  hot:{
+    b_soda(c){ c.say("Un soda : bien trop sucré, et les bulles ne sont pas idéales pendant l'effort."); },
+    b_energie(c){ c.say("Une boisson énergisante : <b>déconseillée aux adolescents</b> (caféine, sucre…)."); },
+    b_jus(c){ c.say("Un jus très sucré. Bon au goûter, mais pas idéal pendant l'effort."); },
+    b_eau(c){ if(c.f('cle')) return c.say("L'eau : la meilleure boisson pendant l'effort, par petites gorgées."); c.set('cle'); c.give('cle_tiroir'); c.sfx('ok'); c.say("L'<b>eau</b> : la meilleure boisson pour l'effort ! Sous la bouteille, une <b>petite clé</b> est scotchée."); },
+    bureau(c){
+      if(!c.f('tiroir')){
+        if(c.use('cle_tiroir')){ c.set('tiroir'); c.drop('cle_tiroir'); c.sfx('ok'); c.say("Le tiroir s'ouvre ! Cliquez à nouveau sur le bureau pour voir son contenu."); return; }
+        return c.say("Le tiroir du bureau est fermé à clé.");
+      }
+      c.zoom('Dans le tiroir',`<div class="letter-paper" style="transform:none"><div style="text-align:center;font-weight:bold;font-size:18px">🩺 FICHE D'INFIRMERIE</div>
+        <p>Élève : <b>Léo</b><br>Classe : 4e B<br>Âge : <b>13 ans</b><br>Motif : « Veut connaître sa fréquence cardiaque maximale théorique pour le cross. »</p>
+        <div style="background:#fff36b;padding:8px;transform:rotate(1deg)">Post-it : « Le code de mon armoire, c'est la FC max théorique de Léo. » — M.S.</div></div>`);
+    },
+    affiche(c){ c.zoom('Affiche « Le cœur »',`<div class="letter-paper" style="transform:none"><div style="text-align:center;font-weight:bold;font-size:20px;color:#c0392b">❤️ LE CŒUR À L'EFFORT</div><ul style="line-height:1.7">
+      <li><b>Prendre son pouls</b> : au poignet ou sur le côté du cou, avec 2 doigts (pas le pouce). Compter 15 secondes, puis × 4.</li>
+      <li><b>Fréquence cardiaque maximale théorique</b> = <b>220 − âge</b></li><li>Au repos, le cœur d'un adolescent bat environ 60 à 100 fois par minute.</li>
+      <li>Boire de l'eau régulièrement, dormir, bien manger : le cœur dit merci !</li></ul></div>`); },
+    ecran(c){ c.say("Bip… bip… 128 battements par minute : le cœur de quelqu'un qui vient de courir !"); },
+    lit(c){ c.say("Le lit de l'infirmerie. Sous l'oreiller… rien. Le Maître est malin."); },
+    armoire(c){
+      if(c.f('armoire')){ if(c.f('pile')) return c.say("L'armoire : pansements, poche de froid (pour les entorses : du froid et on surélève !)."); c.set('pile'); c.give('pile'); c.sfx('ok'); return c.say("Dans l'armoire : pansements, poche de froid… et une <b>pile</b> !"); }
+      c.lock({title:"Cadenas de l'armoire",text:'Un cadenas à 3 chiffres.',kind:'digits',len:3,answer:'207',onOpen:()=>{c.set('armoire');c.say("L'armoire s'ouvre ! Cliquez dessus pour la fouiller.");}});
+    },
+    boitier(c){
+      if(!c.f('power')){
+        if(c.use('pile')){ c.set('power'); c.drop('pile'); c.sfx('ok'); return c.say("Le boîtier s'allume ! Cliquez dessus pour lancer l'échauffement."); }
+        return c.say("Un boîtier électronique éteint, relié à la porte. Il manque une pile…");
+      }
+      if(c.f('done')) return c.say("La porte est déverrouillée.");
+      const steps=[['a',"🏃 Courir doucement pour faire monter la température du corps"],['b',"🦵 Gammes dynamiques : talons-fesses, montées de genoux, pas chassés"],['c',"⚽ Exercices spécifiques à l'activité du jour"],['d',"⚡ Quelques efforts courts et rapides, à intensité proche de l'activité"],['x',"🧘 Étirements longs, immobiles, 1 minute par muscle"]];
+      const order=['c','x','a','d','b'];
+      let seq=[];
+      const html=()=>`<p style="text-align:center">« Lancez l'<b>échauffement parfait</b> : appuyez sur les bons boutons, <b>dans l'ordre</b>. »</p>
+        <div style="display:flex;justify-content:center;gap:6px;margin:6px 0 12px">${range(4).map(i=>`<span style="width:30px;height:12px;border-radius:6px;background:${i<seq.length?'#3ddc84':'#333'}"></span>`).join('')}</div>
+        <div style="display:flex;flex-direction:column;gap:8px">${order.map(k=>`<button class="opt" data-act="${k}" ${seq.includes(k)?'disabled style="opacity:.45"':''}>${steps.find(s=>s[0]===k)[1]}</button>`).join('')}</div>`;
+      const press=k=>c2=>{
+        seq.push(k);
+        const ok=['a','b','c','d'];
+        if(seq[seq.length-1]!==ok[seq.length-1]){ seq=[]; c2.bad("✘ Erreur ! Le boîtier se réinitialise…"); c2.rezoom(html()); return; }
+        c2.sfx('click');
+        if(seq.length===4){ c2.set('done'); c2.closeZoom(); c2.sfx('ok'); c2.say("✅ Échauffement parfait ! Progressif, continu, du général au spécifique. Clac : la porte se déverrouille !"); setTimeout(()=>c2.finish(),900); return; }
+        c2.rezoom(html());
+      };
+      c.zoom('Le boîtier de la porte',html(),{a:press('a'),b:press('b'),c:press('c'),d:press('d'),x:press('x')});
+    },
+    porte(c){ c.say(c.f('done')?"La porte est ouverte.":"La porte est verrouillée électroniquement. Elle est commandée par le boîtier juste au-dessus."); }
+  }
+});
+
+/* ---------- SALLE 6 : LA SALLE DES TROPHÉES ---------- */
+ROOMS.push({
+  id:6, file:'#salle6', name:'La Salle des Trophées', theme:'Fair-play & olympisme', letter:'E', final:true,
+  intro:"Vous voilà enfin, face à moi : le <b>Maître du Sifflet</b> ! La Coupe d'Or est dans mon coffre, derrière ce rideau… avec Gaston, votre hamster mascotte, qui mange mes graines de tournesol depuis ce matin. Il vous manque UNE lettre. Trouvez-la, et prononcez le mot secret… si vous le connaissez !",
+  outro:"",
+  exit:'coffre',
+  questions:[
+    {at:[300,470], type:'match', title:"Les rôles en EPS", q:"Associe chaque rôle à sa mission.",
+     pairs:[["Arbitre","Fait respecter les règles"],["Chronométreur","Mesure les temps"],["Coach","Conseille son équipe"],["Juge","Évalue une prestation (gym, acrosport…)"]],
+     explain:"Ces <b>rôles sociaux</b> font partie de l'EPS !",
+     clue:"Le rideau ne s'ouvre qu'avec un coup de sifflet : sélectionnez le sifflet doré puis cliquez sur le rideau."},
+    {at:[660,470], type:'qcm', title:"Fair-play ?", q:"Ton équipe vient de perdre. L'élève arbitre s'est trompé une fois. Quelle attitude est fair-play ?",
+     options:["Je crie que c'est la faute de l'arbitre","Je refuse de serrer la main","Je félicite les adversaires et je remercie l'arbitre","Je quitte le terrain en colère"], answer:2,
+     explain:"Gagner sans écraser, perdre sans râler : c'est ça le fair-play.",
+     clue:"L'armoire à médailles : Paris a accueilli les JO d'été en 1900, 1924… et en quelle année récemment ?"},
+    {at:[940,480], type:'qcm', title:"La devise olympique", q:"Quel mot a été ajouté en 2021 à la devise « Plus vite, plus haut, plus fort » ?",
+     options:["Toujours","Ensemble","Champion","Victoire"], answer:1,
+     explain:"« Citius, Altius, Fortius – Communiter » : plus vite, plus haut, plus fort — <b>ensemble</b>.",
+     clue:"Le mot secret du coffre : vos 6 lettres remises dans l'ordre. On ne gagne jamais seul, on gagne en É _ _ _ _ E."}
+  ],
+  hints:[
+    {until:'rideau', text:"Le rideau ne s'ouvre qu'avec un coup de sifflet d'arbitre. Le sifflet doré était sur la table de marque du gymnase (salle 2) !"},
+    {until:'medaille', text:"L'armoire à médailles : Paris a accueilli les JO d'été en 1900, en 1924… et ?"},
+    {until:'devise', text:"Le drapeau olympique porte la devise : « Plus vite, plus haut, plus fort — … ». Le mot manquant a été ajouté en 2021 (8 lettres)."},
+    {until:'done', text:"Vous avez 6 lettres : E, P, I, U, Q, E. Remettez-les dans l'ordre : on ne gagne jamais seul, on gagne en É _ _ _ _ E."}
+  ],
+  solution:["Utiliser le sifflet doré (pris au gymnase) sur le rideau rouge → le coffre apparaît.","Armoire à médailles : <b>2024</b> → médaille avec la 6e lettre : E.","Drapeau olympique : devise « … plus fort — <b>ENSEMBLE</b> » → débloque le premier verrou du coffre.","Coffre : anagramme des 6 lettres → <b>EQUIPE</b>."],
+  render(c){
+    return `<svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="r6w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a140a"/><stop offset="1" stop-color="#120804"/></linearGradient>
+      <linearGradient id="r6c" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6c8" stop-opacity=".5"/><stop offset="1" stop-color="#fff6c8" stop-opacity="0"/></linearGradient>
+      <linearGradient id="r6r" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7a0f1a"/><stop offset=".5" stop-color="#c0263a"/><stop offset="1" stop-color="#7a0f1a"/></linearGradient></defs>
+    <rect width="1000" height="560" fill="url(#r6w)"/>${range(13).map(i=>`<rect x="${i*80}" y="0" width="2" height="440" fill="#3d2010"/>`).join('')}
+    <rect y="440" width="1000" height="120" fill="#3a1d0c"/>
+    ${H('trophees',"Étagère des trophées",`<rect x="20" y="110" width="320" height="10" fill="#6b3a17"/>${[60,140,220,300].map((x,i)=>trophy(x,108,.9,i%2?'#d9d9d9':'#ffc93c')).join('')}`)}
+    ${H('trophees2',"Étagère des trophées",`<rect x="660" y="80" width="320" height="10" fill="#6b3a17"/>${[700,780,860,940].map((x,i)=>trophy(x,78,.9,i%2?'#cd7f32':'#ffc93c')).join('')}`)}
+    <polygon points="430,0 570,0 660,440 340,440" fill="url(#r6c)"/>
+    ${c.f('rideau')?H('coffre',"Le coffre de la Coupe d'Or",`<rect x="380" y="200" width="240" height="200" rx="8" fill="#9fe8ff" fill-opacity=".1" stroke="#cfefff" stroke-width="3"/>
+        <rect x="420" y="290" width="160" height="100" rx="10" fill="#7a4a12" stroke="#3a1d0c" stroke-width="5"/><path d="M420,320 h160" stroke="#ffc93c" stroke-width="5"/><rect x="480" y="306" width="40" height="34" rx="6" fill="#ffc93c"/><circle cx="500" cy="320" r="5" fill="#3a1d0c"/>
+        <text x="500" y="265" font-family="Arial Black" font-size="60" text-anchor="middle" fill="#ffc93c" style="filter:drop-shadow(0 0 10px #ffc93c)">?</text>`)
+      :H('rideau',"Rideau rouge",`<rect x="360" y="40" width="280" height="22" fill="#ffc93c"/>${range(8).map(i=>`<rect x="${362+i*35}" y="60" width="36" height="380" fill="url(#r6r)"/>`).join('')}
+        <rect x="455" y="300" width="90" height="34" rx="6" fill="#ffc93c"/><text x="500" y="322" font-family="Arial Black" font-size="12" text-anchor="middle" fill="#5a2f0e">PRIVÉ — M.S.</text>`)}
+    ${H('medailles',"Armoire à médailles",`<rect x="40" y="200" width="230" height="240" rx="6" fill="#5a2f0e" stroke="#3a1d0c" stroke-width="5"/><rect x="58" y="220" width="194" height="150" fill="#9fe8ff" fill-opacity=".12" stroke="#cfefff" stroke-width="2"/>
+      ${[90,155,220].map((x,i)=>`<rect x="${x-3}" y="230" width="6" height="40" fill="${['#2a6bff','#ff4d4d','#3ddc84'][i]}"/><circle cx="${x}" cy="285" r="18" fill="${['#ffc93c','#d9d9d9','#cd7f32'][i]}"/>`).join('')}
+      <rect x="70" y="384" width="170" height="40" rx="4" fill="#fdf6e3"/><text x="155" y="402" font-family="Arial Black" font-size="11" text-anchor="middle" fill="#13214d">PARIS OLYMPIQUE</text><text x="155" y="418" font-family="Courier New" font-weight="bold" font-size="13" text-anchor="middle" fill="#13214d">1900 · 1924 · ????</text>
+      ${c.f('medaille')?'':padlock(155,326,1.2)}`)}
+    ${H('drapeau',"Drapeau olympique",`<rect x="700" y="130" width="6" height="310" fill="#c9d6f0"/><rect x="706" y="130" width="250" height="150" fill="#fff"/>
+      ${[[760,'#0081c8'],[830,'#000'],[900,'#ee334e']].map(([x,col])=>`<circle cx="${x}" cy="190" r="26" fill="none" stroke="${col}" stroke-width="7"/>`).join('')}${[[795,'#fcb131'],[865,'#00a651']].map(([x,col])=>`<circle cx="${x}" cy="218" r="26" fill="none" stroke="${col}" stroke-width="7"/>`).join('')}
+      <rect x="720" y="300" width="220" height="40" rx="6" fill="#ffc93c"/><text x="830" y="325" font-family="Arial Black" font-size="12" text-anchor="middle" fill="#5a2f0e">${c.f('devise')?'… PLUS FORT — ENSEMBLE':'… PLUS FORT — ????????'}</text>`)}
+    ${H('livre',"Livre d'or du fair-play",`<rect x="760" y="390" width="12" height="70" fill="#5a2f0e"/><polygon points="720,370 820,370 840,395 700,395" fill="#7a4a12"/><path d="M712,368 q38,-14 58,0 q20,-14 58,0 v-20 q-20,-14 -58,0 q-20,-14 -58,0z" fill="#fdf6e3"/>`)}
+    </svg>`;
+  },
+  hot:{
+    trophees(c){ c.say("Des dizaines de trophées : cross, handball, gym, UNSS… Mais pas la Coupe d'Or."); },
+    trophees2(c){ c.say("Une coupe porte une inscription : « Gagner sans écraser, perdre sans râler. »"); },
+    rideau(c){
+      if(c.use('sifflet')){ c.set('rideau'); c.sfx('whistle'); c.say("TWEEEEEET ! Le rideau s'ouvre lentement… Derrière, un <b>coffre</b> sous une cloche de verre !"); return; }
+      c.say("Un lourd rideau rouge. Une plaque : « Seul un <b>coup de sifflet d'arbitre</b> m'ouvrira. »"+(c.has('sifflet')?'':" <i>Vous n'avez pas de sifflet… Avez-vous bien fouillé le gymnase ?</i>"));
+    },
+    medailles(c){
+      if(c.f('medaille')) return c.say("La médaille avec la lettre E est dans votre carnet.");
+      c.lock({title:'Armoire à médailles',text:"Une plaque : « Paris, ville olympique : 1900 · 1924 · ???? »",kind:'digits',len:4,answer:'2024',onOpen:()=>{c.set('medaille');c.letter();c.modal(`<h2>🥇 Une médaille !</h2><p>Gravée au dos, la dernière lettre :</p><div class="big-letter">E</div>`);}});
+    },
+    drapeau(c){
+      if(c.f('devise')) return c.say("La devise est complète : « Plus vite, plus haut, plus fort — ENSEMBLE ». Un verrou du coffre s'est ouvert.");
+      c.lock({title:'La devise olympique',text:"« Citius, Altius, Fortius — Communiter »<br>« Plus vite, plus haut, plus fort — ________ »",kind:'letters',len:8,answer:'ENSEMBLE',onOpen:()=>{c.set('devise');c.say("✅ « ENSEMBLE » ! On entend un verrou s'ouvrir dans le coffre…");}});
+    },
+    livre(c){ c.zoom("Livre d'or du fair-play",`<div class="letter-paper" style="transform:none"><div style="text-align:center;font-weight:bold;font-size:18px">📖 LIVRE D'OR DU FAIR-PLAY</div><ul style="line-height:1.7">
+      <li>« J'ai serré la main des adversaires, même après la défaite. » — Inès, 5e</li><li>« L'arbitre s'est trompé, je l'ai quand même remercié. Arbitrer, c'est dur ! » — Yanis, 4e</li>
+      <li>« En ultimate, pas d'arbitre : on s'auto-arbitre avec l'esprit du jeu. » — Chloé, 3e</li><li>« Coach, observateur, juge, chronométreur : en EPS, chacun a un rôle. » — Mehdi, 6e</li></ul>
+      <p style="text-align:right;font-style:italic">« Aucun champion ne gagne seul. » — M.S.</p></div>`); },
+    coffre(c){
+      if(!c.f('devise')) return c.say("Le coffre a deux verrous. Le premier est relié au <b>drapeau olympique</b>…");
+      if(!c.f('medaille')) return c.say("Le coffre attend un mot de 6 lettres… mais il vous manque encore une lettre. Cherchez dans la salle !");
+      c.lock({title:"Le coffre de la Coupe d'Or",text:"Le mot secret, avec les 6 lettres de votre carnet.",kind:'letters',len:6,answer:'EQUIPE',onOpen:()=>c.finish()});
+    }
+  }
+});
+
+const STORY = {
+  flash:"📻 FLASH INFO — Radio Collège, 7 h 58",
+  letter:[
+    "Allô, allô, élèves du collège… Ici le <b>MAÎTRE DU SIFFLET</b>. Tweeeeet !",
+    "Vous ne me connaissez pas ? J'étais le plus grand arbitre de l'histoire. Jusqu'au jour où l'on m'a interdit de terrain… parce que je sifflais TOUT : les fautes, les buts, les éternuements, les pigeons.",
+    "Alors aujourd'hui, je me venge. Cette nuit, j'ai volé la <b>Coupe d'Or</b> de l'Association Sportive… et j'ai kidnappé <b>Gaston</b>, votre hamster mascotte. (Il va bien. Il mange beaucoup.)",
+    "Tout est enfermé dans un coffre, au fond de ma <b>Salle des Trophées</b>. Pour y arriver, vous devrez vous échapper de mes 5 salles piégées : vestiaires, gymnase, stade, salle de gym et infirmerie.",
+    "Fouillez TOUT. Ramassez des objets, combinez-les, ouvrez mes cadenas. Mais sans connaître les règles, la sécurité et la santé en EPS, vous ne trouverez JAMAIS mes codes.",
+    "Chaque salle vous donnera <b>une lettre</b> du mot secret qui ouvre le coffre.",
+    "Vous avez <b>50 minutes</b>. Après… je fais fondre la Coupe d'Or pour en faire un sifflet géant. Chaque indice vous coûtera 1 minute. Que le match commence !"
+  ],
+  signature:"— Le Maître du Sifflet 😈",
+  ending:[
+    "CLAC ! Le coffre s'ouvre dans un nuage de magnésie dorée… La Coupe d'Or brille à nouveau, et Gaston le hamster vous saute dans les bras (les joues pleines de graines).",
+    "Le Maître du Sifflet retire lentement sa capuche… et sourit : « Bravo. En vérité, je n'ai jamais voulu fondre la coupe. Je cherchais des élèves dignes de devenir les <b>nouveaux arbitres officiels</b> de l'AS. »",
+    "« Vous connaissez les règles, la sécurité, la santé, le fair-play… et vous avez compris le plus important : on ne gagne jamais seul. On gagne en <b>ÉQUIPE</b>. »",
+    "Il vous tend son sifflet doré : « Il est à vous maintenant. Faites-en bon usage. » Puis il disparaît dans un dernier… Tweeeeeeet !"
+  ]
+};
+
+/* Miniatures pour le plan (on réutilise le décor, sans état) */
+window.EG_DATA = {ROOMS, ITEMS, STORY, FICHE_ARBITRE, FICHE_ACRO, trophy};
+})();
+
+</script>
+<script>
+/* =========================================================
+   ESCAPE GAME EPS — moteur « point & click »
+   (scènes à fouiller, inventaire, zooms, cadenas, chrono, sauvegarde)
+   ========================================================= */
+(function(){
+const {ROOMS, ITEMS, STORY} = window.EG_DATA;
+const KEY = 'escape_eps_maitre_sifflet_v2';
+const DURATION = 50*60;
+const PENALTY  = 60;
+
+/* ---------- Sauvegarde ---------- */
+let memory=null;
+/* indices gagnés grâce aux enveloppes = objets d'inventaire */
+ROOMS.forEach(r=>(r.questions||[]).forEach((q,i)=>{ ITEMS[`clue_${r.id}_${i}`]={name:`Indice ⭐${i+1}`,icon:'⭐',room:r.id,view:`<p style="font-size:19px;text-align:center">🔎 ${q.clue}</p>`}; }));
+function fresh(){return {team:'',start:null,penalty:0,hints:0,errors:0,flags:{},inv:[],sel:null,rooms:{},end:null,sound:true,timeoutShown:false,unlockAll:false}}
+function load(){ try{const s=JSON.parse(localStorage.getItem(KEY)); if(s) return Object.assign(fresh(),s);}catch(e){} return memory||fresh(); }
+function save(){ memory=S; try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){} }
+let S=load();
+
+function remaining(){ if(!S.start) return DURATION; return DURATION-Math.floor(((S.end||Date.now())-S.start)/1000)-S.penalty; }
+function fmt(sec){ const n=sec<0; sec=Math.abs(sec); return (n?'+':'')+String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0'); }
+function unlocked(id){ return id===1 || S.unlockAll || !!S.rooms[id-1]; }
+function el(h){const t=document.createElement('template');t.innerHTML=h.trim();return t.content.firstElementChild}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function letterGot(r){ return r.final ? !!S.flags['6.medaille'] : !!S.rooms[r.id]; }
+
+/* ---------- Sons synthétisés ---------- */
+let AC=null;
+function ac(){ if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}} if(AC&&AC.state==='suspended'){try{AC.resume()}catch(e){}} return AC; }
+function tone(f,d,type,v,w){ const a=ac(); if(!a||!S.sound) return; const t=a.currentTime+(w||0), o=a.createOscillator(), g=a.createGain();
+  o.type=type||'sine'; o.frequency.setValueAtTime(f,t); g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(v||.15,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(g).connect(a.destination); o.start(t); o.stop(t+d+.05); }
+function whistle(){ const a=ac(); if(!a||!S.sound) return; const t=a.currentTime,o=a.createOscillator(),g=a.createGain(),l=a.createOscillator(),lg=a.createGain();
+  o.frequency.value=2900; l.frequency.value=38; lg.gain.value=180; l.connect(lg).connect(o.frequency);
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(.12,t+.03); g.gain.setValueAtTime(.12,t+.5); g.gain.exponentialRampToValueAtTime(.0001,t+.65);
+  o.connect(g).connect(a.destination); o.start(t); l.start(t); o.stop(t+.7); l.stop(t+.7); }
+const SFX={
+  ok(){[523,659,784].forEach((f,i)=>tone(f,.18,'triangle',.14,i*.09))},
+  bad(){tone(140,.28,'sawtooth',.08)},
+  click(){tone(880,.05,'square',.04)},
+  pick(){tone(660,.08,'triangle',.12);tone(990,.12,'triangle',.12,.08)},
+  win(){[523,659,784,1046,784,1046].forEach((f,i)=>tone(f,.22,'triangle',.14,i*.12));setTimeout(whistle,800)},
+  whistle
+};
+
+/* ---------- Dessins ---------- */
+function avatar(size){ size=size||64; return `<svg width="${size}" height="${size}" viewBox="0 0 120 120" aria-hidden="true">
+  <defs><radialGradient id="avbg" cx=".5" cy=".4" r=".6"><stop offset="0" stop-color="#3a2a7a"/><stop offset="1" stop-color="#120a2e"/></radialGradient></defs>
+  <circle cx="60" cy="60" r="58" fill="url(#avbg)" stroke="#ff7a1a" stroke-width="3"/><path d="M20,118 q4,-40 40,-44 q36,4 40,44z" fill="#1c1240"/>
+  <path d="M30,70 q-4,-48 30,-52 q34,4 30,52 q-8,10 -30,12 q-22,-2 -30,-12z" fill="#2a1a5e" stroke="#4b3596" stroke-width="2"/><ellipse cx="60" cy="62" rx="20" ry="22" fill="#05030f"/>
+  <ellipse cx="52" cy="58" rx="5" ry="3.5" fill="#ffb02e"><animate attributeName="ry" values="3.5;3.5;.4;3.5" dur="4s" repeatCount="indefinite"/></ellipse>
+  <ellipse cx="68" cy="58" rx="5" ry="3.5" fill="#ffb02e"><animate attributeName="ry" values="3.5;3.5;.4;3.5" dur="4s" repeatCount="indefinite"/></ellipse>
+  <path d="M44,84 q16,22 32,0" stroke="#ffc93c" stroke-width="2" fill="none"/><g transform="translate(60,104) rotate(-12)"><rect x="-12" y="-6" width="20" height="12" rx="4" fill="#ffc93c"/><circle cx="8" cy="0" r="8" fill="#ffc93c"/><circle cx="8" cy="0" r="3" fill="#b38a12"/></g></svg>`; }
+function whistleLogo(){ return `<svg viewBox="0 0 40 40"><g transform="rotate(-20 20 20)"><rect x="4" y="14" width="20" height="12" rx="5" fill="#ffc93c"/><circle cx="26" cy="20" r="10" fill="#ffc93c"/><circle cx="26" cy="20" r="4" fill="#b38a12"/><rect x="2" y="16" width="6" height="8" rx="2" fill="#ff7a1a"/></g></svg>`; }
+function trophySvg(){ return `<svg viewBox="0 0 200 220"><defs><linearGradient id="tg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".45" stop-color="#ffc93c"/><stop offset="1" stop-color="#c47a00"/></linearGradient>
+  <radialGradient id="tglow" cx=".5" cy=".4" r=".5"><stop offset="0" stop-color="#ffc93c" stop-opacity=".7"/><stop offset="1" stop-color="#ffc93c" stop-opacity="0"/></radialGradient></defs>
+  <circle cx="100" cy="90" r="100" fill="url(#tglow)"><animate attributeName="r" values="90;105;90" dur="2.4s" repeatCount="indefinite"/></circle>
+  <path d="M55,30 h90 v25 a45,55 0 0 1 -90,0z" fill="url(#tg)"/><path d="M55,40 q-34,0 -30,26 q4,22 34,22" fill="none" stroke="url(#tg)" stroke-width="9"/><path d="M145,40 q34,0 30,26 q-4,22 -34,22" fill="none" stroke="url(#tg)" stroke-width="9"/>
+  <rect x="92" y="108" width="16" height="34" fill="url(#tg)"/><rect x="70" y="140" width="60" height="14" rx="4" fill="url(#tg)"/><rect x="58" y="154" width="84" height="40" rx="6" fill="#5a2f0e"/><rect x="72" y="164" width="56" height="20" rx="3" fill="#ffc93c"/>
+  <text x="100" y="179" text-anchor="middle" font-family="Arial Black" font-size="11" fill="#5a2f0e">AS</text><path d="M70,38 q6,34 22,48" stroke="#fff" stroke-opacity=".7" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M100,62 l6,12 l13,2 l-9,9 l2,13 l-12,-6 l-12,6 l2,-13 l-9,-9 l13,-2z" fill="#fff" fill-opacity=".9"/></svg>`; }
+function hamster(size){ return `<svg width="${size||90}" height="${size||90}" viewBox="0 0 100 100"><ellipse cx="50" cy="62" rx="34" ry="28" fill="#e8a25a"/><ellipse cx="50" cy="70" rx="22" ry="16" fill="#fbe3c4"/>
+  <circle cx="28" cy="34" r="10" fill="#e8a25a"/><circle cx="72" cy="34" r="10" fill="#e8a25a"/><circle cx="28" cy="34" r="5" fill="#ffb3c1"/><circle cx="72" cy="34" r="5" fill="#ffb3c1"/>
+  <circle cx="40" cy="54" r="4" fill="#222"/><circle cx="60" cy="54" r="4" fill="#222"/><ellipse cx="50" cy="62" rx="4" ry="3" fill="#ff8fa3"/><ellipse cx="32" cy="66" rx="9" ry="7" fill="#f2b57a"/><ellipse cx="68" cy="66" rx="9" ry="7" fill="#f2b57a"/></svg>`; }
+
+/* ---------- Fenêtres ---------- */
+function modal(html,buttons){
+  const bg=el(`<div class="modal-bg"><div class="modal panel">${html}<div class="actions"></div></div></div>`);
+  const act=bg.querySelector('.actions');
+  (buttons||[{label:'OK'}]).forEach(b=>{const btn=el(`<button class="btn ${b.cls||''}">${b.label}</button>`); btn.onclick=()=>{bg.remove(); b.action&&b.action();}; act.appendChild(btn);});
+  document.body.appendChild(bg); return bg;
+}
+
+/* ---------- HUD ---------- */
+function hud(){
+  const h=document.getElementById('hud'); if(!h) return;
+  const letters=ROOMS.map(r=>`<div class="slot ${letterGot(r)?'got':''}" title="${esc(r.name)}">${letterGot(r)?r.letter:'?'}</div>`).join('');
+  h.innerHTML=`<div class="hud-in">
+    <a class="hud-logo" href="#accueil">${whistleLogo()}<span>Maître du Sifflet</span></a>
+    <span class="hud-team">${S.team?'👥 '+esc(S.team):''}</span><span class="hud-spacer"></span>
+    <div class="carnet" title="Carnet : lettres du mot secret">${letters}</div>
+    <div class="timer" id="timer">${fmt(remaining())}</div>
+    <button class="hud-btn" id="snd" title="Son">${S.sound?'🔊':'🔇'}</button>
+    <a class="hud-btn" href="#accueil">🗺️ Plan</a></div>`;
+  h.querySelector('#snd').onclick=()=>{S.sound=!S.sound;save();hud();};
+  tick();
+}
+function tick(){
+  const t=document.getElementById('timer'); if(!t) return;
+  const r=remaining(); t.textContent=fmt(r);
+  t.classList.toggle('warn',r>0&&r<=300&&!S.end); t.classList.toggle('over',r<=0);
+  if(S.start&&!S.end&&r<=0&&!S.timeoutShown){ S.timeoutShown=true; save(); SFX.whistle();
+    modal(`<h2>⏰ Temps écoulé !</h2><div style="margin:10px auto;width:90px">${avatar(90)}</div><p>« Mouahaha ! Les 50 minutes sont passées ! Je fais chauffer le four à sifflets… »<br><br>Mais votre professeur vous accorde une <b>prolongation</b> : le chrono compte maintenant le temps supplémentaire. Vite !</p>`,[{label:'Continuer en prolongation'}]); }
+}
+setInterval(tick,1000);
+
+/* =========================================================
+   MOTEUR DE SALLE
+   ========================================================= */
+function room(id){
+  const R=ROOMS.find(r=>r.id===id);
+  if(!S.start||!unlocked(id)){ location.href='#accueil'; return; }
+  document.title=`${R.name} — Escape game EPS`;
+  hud();
+  const main=document.getElementById('main');
+  main.innerHTML=`
+    <div class="room-top">
+      <div><div class="room-n">SALLE ${id} / ${ROOMS.length}${R.final?' — FINALE':''} • ${R.theme}</div><h1 class="room-title">${R.name}</h1></div>
+      <div class="room-tools"><button class="btn small ghost" id="zonesBtn" title="Faire clignoter les zones cliquables">👁 Montrer les zones</button><button class="btn small" id="hintBtn">💡 Indice (−1 min)</button></div>
+    </div>
+    <div class="whistle-msg"><div class="av">${avatar(58)}</div><div class="bubble">${R.intro}</div></div>
+    <div id="doneBanner"></div>
+    <div class="scene-wrap"><div class="scene" id="scene"></div><div class="tip" id="tip"></div></div>
+    <div class="msgbar"><span class="msg-ico">🔎</span><div id="say">Explorez la salle : cliquez sur tout ce qui vous semble suspect… et trouvez les <b>3 enveloppes du Maître</b> ✉️ (une étoile + un indice chacune) !</div></div>
+    <div class="inv"><div class="inv-head"><b>🎒 Inventaire</b><span id="invHelp"></span></div><div class="inv-items" id="inv"></div></div>`;
+
+  const sceneEl=main.querySelector('#scene'), sayEl=main.querySelector('#say'), tip=main.querySelector('#tip');
+  let zoomEl=null, zoomActs={}, zoomBody=null, zoomMsg=null;
+
+  const P=k=>id+'.'+k;
+  const ctx={
+    _used:false,
+    f:k=>!!S.flags[P(k)], set:k=>{S.flags[P(k)]=true},
+    has:i=>S.inv.includes(i),
+    give:i=>{ if(!S.inv.includes(i)) S.inv.push(i); SFX.pick(); flashInv(i); },
+    drop:i=>{ S.inv=S.inv.filter(x=>x!==i); if(S.sel===i) S.sel=null; },
+    use:i=>{ if(S.sel===i){ ctx._used=true; S.sel=null; return true; } return false; },
+    say:h=>{ sayEl.innerHTML=h; sayEl.parentElement.classList.remove('flash'); void sayEl.offsetWidth; sayEl.parentElement.classList.add('flash'); if(zoomMsg) zoomMsg.innerHTML=h; },
+    sfx:n=>SFX[n]&&SFX[n](),
+    bad:m=>{ S.errors++; SFX.bad(); ctx.say(m); },
+    modal:(h,b)=>modal(h,b),
+    letter:()=>hud(),
+    zoom(title,html,acts){
+      closeZoom(); zoomActs=acts||{};
+      zoomEl=el(`<div class="modal-bg"><div class="zoom panel"><div class="zoom-head"><h2>${title}</h2><button class="hud-btn zclose">✕ Fermer</button></div><div class="zoom-body"></div><div class="zoom-msg"></div></div></div>`);
+      zoomBody=zoomEl.querySelector('.zoom-body'); zoomMsg=zoomEl.querySelector('.zoom-msg');
+      zoomBody.innerHTML=html;
+      zoomEl.querySelector('.zclose').onclick=closeZoom;
+      zoomEl.addEventListener('click',e=>{ if(e.target===zoomEl) closeZoom(); });
+      zoomBody.addEventListener('click',e=>{
+        const a=e.target.closest('[data-act]'); if(!a) return;
+        const fn=zoomActs[a.getAttribute('data-act')]; if(fn){ fn(ctx,a); after(); }
+      });
+      document.body.appendChild(zoomEl);
+    },
+    rezoom:h=>{ if(zoomBody) zoomBody.innerHTML=h; },
+    closeZoom:()=>closeZoom(),
+    lock:o=>lockModal(o,()=>{ o.onOpen&&o.onOpen(); after(); }),
+    finish:()=>finish()
+  };
+  function closeZoom(){ if(zoomEl){ zoomEl.remove(); zoomEl=null; zoomBody=null; zoomMsg=null; } }
+
+  function stars(){ return (R.questions||[]).filter((_,i)=>S.flags[P('q'+i)]).length; }
+  function draw(){
+    let svg=R.render(ctx);
+    const Q=R.questions||[];
+    const env=Q.map((q,i)=>S.flags[P('q'+i)]?'':`<g data-hot="env${i}" data-label="Enveloppe du Maître"><g class="env" transform="translate(${q.at[0]},${q.at[1]})"><rect x="-30" y="-24" width="60" height="48" fill="rgba(0,0,0,0)"/><rect x="-24" y="-16" width="48" height="32" rx="3" fill="#fdf6e3" stroke="#a8530b" stroke-width="2" transform="rotate(-8)"/><path d="M-24,-16 l24,18 l24,-18" fill="none" stroke="#a8530b" stroke-width="2" transform="rotate(-8)"/><circle cx="0" cy="2" r="8" fill="#c0263a" transform="rotate(-8)"/><text x="0" y="6" font-size="8" font-family="Arial Black" fill="#fff" text-anchor="middle" transform="rotate(-8)">MS</text></g></g>`).join('');
+    const badge=Q.length?`<g><rect x="400" y="6" width="200" height="36" rx="10" fill="#081028" opacity=".88"/><text x="500" y="31" font-family="Arial Black" font-size="16" text-anchor="middle" fill="#ffc93c">${'⭐'.repeat(stars())}${'☆'.repeat(Q.length-stars())} Étoiles ${stars()}/${Q.length}</text></g>`:'';
+    sceneEl.innerHTML=svg.replace(/<\/svg>\s*$/, env+badge+'</svg>');
+  }
+  function after(){ R.check&&R.check(ctx); save(); draw(); drawInv(); hud(); }
+
+  /* --- clics dans la scène --- */
+  sceneEl.addEventListener('click',e=>{
+    const h=e.target.closest('[data-hot]'); if(!h) return;
+    ac();
+    const k=h.getAttribute('data-hot');
+    if(/^env\d+$/.test(k)){ if(S.sel){S.sel=null;} openQuestion(+k.slice(3)); drawInv(); return; }
+    if(k===R.exit && !S.rooms[id] && R.questions && stars()<R.questions.length && !(R.final&&k==='coffre'&&!ctx.f('devise'))){
+      SFX.bad(); ctx.say(`🔒 Il y a un second verrou, avec ${R.questions.length} trous en forme d'étoile… Il vous faut les <b>${R.questions.length} étoiles du Maître</b> (${stars()}/${R.questions.length}). Trouvez ses enveloppes cachées dans la salle !`); S.sel=null; drawInv(); return; }
+    const fn=R.hot[k]; if(!fn) return;
+    ctx._used=false; const sel=S.sel;
+    fn(ctx);
+    if(sel && !ctx._used && S.sel===sel){ ctx.say(`${ITEMS[sel].name} : ça ne sert à rien ici. 🤔`); S.sel=null; }
+    after();
+  });
+  sceneEl.addEventListener('mousemove',e=>{
+    const h=e.target.closest('[data-hot]');
+    if(!h){ tip.style.opacity=0; return; }
+    const r=sceneEl.getBoundingClientRect();
+    tip.textContent=(S.sel?`Utiliser ${ITEMS[S.sel].name} sur : `:'')+h.getAttribute('data-label');
+    tip.style.left=Math.min(e.clientX-r.left+14, r.width-200)+'px'; tip.style.top=(e.clientY-r.top+14)+'px'; tip.style.opacity=1;
+  });
+  sceneEl.addEventListener('mouseleave',()=>tip.style.opacity=0);
+
+  /* --- enveloppes du Maître : questions --- */
+  function openQuestion(i){
+    const q=R.questions[i];
+    ctx.zoom(`✉️ Enveloppe du Maître — ${q.title}`,`<div class="qwrap"><div class="q">${q.q}</div><div class="qbody"></div><div class="feedback" id="qfb"></div></div>`,{});
+    const body=zoomBody.querySelector('.qbody'), fb=zoomBody.querySelector('#qfb');
+    function win(){
+      S.flags[P('q'+i)]=true; ITEMS[`clue_${id}_${i}`] && !S.inv.includes(`clue_${id}_${i}`) && S.inv.push(`clue_${id}_${i}`);
+      save(); SFX.ok(); setTimeout(SFX.pick,300);
+      body.querySelectorAll('button,input').forEach(b=>b.disabled=true);
+      body.insertAdjacentHTML('afterend',`<div class="explain"><b>✔ Bonne réponse !</b> ${q.explain||''}</div><div class="clue-box">⭐ <b>Étoile gagnée !</b> Le Maître lâche un indice (rangé dans votre inventaire) :<br><span>🔎 ${q.clue}</span></div>`);
+      fb.textContent=''; draw(); drawInv(); hud();
+      if(stars()===R.questions.length) {ctx.say(`⭐⭐⭐ Les ${R.questions.length} étoiles sont à vous ! Le second verrou de la sortie est prêt à s'ouvrir.`); if(zoomMsg) zoomMsg.innerHTML='';}
+      else ctx.say(`⭐ Étoile gagnée ! Indice : ${q.clue}`);
+      if(zoomMsg) zoomMsg.innerHTML='';
+    }
+    function wrong(m){ S.errors++; save(); SFX.bad(); fb.className='feedback bad'; fb.textContent=m||'✘ Raté… Le Maître du Sifflet ricane. Réessayez !'; }
+    buildQuestion(q,body,win,wrong);
+  }
+
+  /* --- inventaire --- */
+  function drawInv(){
+    const box=main.querySelector('#inv');
+    if(!S.inv.length){ box.innerHTML=`<span class="inv-empty">Vide pour l'instant… Fouillez la salle !</span>`; }
+    else box.innerHTML=S.inv.map(i=>{const it=ITEMS[i];return `<button class="item ${S.sel===i?'sel':''}" data-item="${i}"><span class="ico">${it.icon}</span><span>${it.name}</span>${it.view?'<span class="eye">🔍</span>':''}</button>`}).join('');
+    main.querySelector('#invHelp').innerHTML = S.sel ? `→ Cliquez sur un élément de la salle pour utiliser <b>${ITEMS[S.sel].name}</b> <button class="hud-btn" id="unsel">Annuler</button>` : `Cliquez sur un objet pour le sélectionner, puis sur un élément de la salle pour l'utiliser.`;
+    const u=main.querySelector('#unsel'); if(u) u.onclick=()=>{S.sel=null;save();drawInv();};
+    box.querySelectorAll('[data-item]').forEach(b=>b.onclick=e=>{
+      const i=b.getAttribute('data-item'), it=ITEMS[i];
+      if(e.target.closest('.eye')){ return modal(`<h2>${it.icon.length<5?it.icon:''} ${it.name}</h2><div style="text-align:left">${it.view}</div>`,[{label:'Fermer'}]); }
+      S.sel = S.sel===i ? null : i; SFX.click(); save(); drawInv();
+      if(S.sel && it.view) ctx.say(`<b>${it.name}</b> sélectionné(e). Cliquez sur 🔍 pour l'examiner, ou sur un élément de la salle pour l'utiliser.`);
+    });
+  }
+  function flashInv(i){ setTimeout(()=>{ const b=main.querySelector(`[data-item="${i}"]`); if(b){ b.classList.add('new'); setTimeout(()=>b.classList.remove('new'),1600);} },50); }
+
+  /* --- boutons --- */
+  main.querySelector('#zonesBtn').onclick=()=>{ sceneEl.classList.add('reveal'); setTimeout(()=>sceneEl.classList.remove('reveal'),1800); };
+  main.querySelector('#hintBtn').onclick=()=>{
+    if(S.rooms[id]) return ctx.say("Cette salle est déjà terminée !");
+    const h = (R.questions && stars()===0)
+      ? {text:`Cherchez les <b>enveloppes du Maître</b> (blanches avec un sceau rouge) cachées dans le décor. Chaque bonne réponse donne une étoile ET un indice. Il en faut ${R.questions.length} pour sortir !`}
+      : (R.hints.find(x=>!ctx.f(x.until))||R.hints[R.hints.length-1]);
+    modal(`<h2>💡 Besoin d'un indice ?</h2><p>Un indice coûte <b>1 minute</b> sur votre chrono.</p>`,[
+      {label:"Oui, je veux l'indice",action:()=>{ S.penalty+=PENALTY; S.hints++; save(); tick(); ctx.say('💡 <b>Indice :</b> '+h.text); modal(`<h2>💡 Indice</h2><p>${h.text}</p>`); }},
+      {label:'Non, on cherche encore',cls:'ghost'}]);
+  };
+
+  /* --- fin de salle --- */
+  function banner(){
+    if(!S.rooms[id]) return;
+    const next=ROOMS.find(r=>r.id===id+1);
+    main.querySelector('#doneBanner').innerHTML = R.final
+      ? `<div class="panel done-banner"><b>🏆 Le coffre est ouvert !</b> <a class="btn small" href="#fin">Voir la fin →</a></div>`
+      : `<div class="panel done-banner"><b>✅ Salle terminée — lettre « ${R.letter} »</b><span><a class="btn small ghost" href="#accueil">🗺️ Plan</a> ${next?`<a class="btn small" href="${next.file}">${next.name} →</a>`:''}</span></div>`;
+  }
+  function finish(){
+    if(S.rooms[id]) return;
+    closeZoom();
+    S.rooms[id]=true; S.sel=null;
+    S.inv=S.inv.filter(i=>ITEMS[i].room!==id);
+    if(R.final) S.end=Date.now();
+    save(); hud(); draw(); drawInv(); banner();
+    SFX.win();
+    if(R.final){
+      modal(`<h2>🏆 ÉQUIPE !</h2><div style="display:flex;justify-content:center;align-items:end;gap:6px"><div style="width:130px">${trophySvg()}</div>${hamster(80)}</div><p>CLAC ! Le coffre s'ouvre… La Coupe d'Or et Gaston sont libres !</p>`,
+        [{label:"Voir la fin de l'histoire →",action:()=>location.href='#fin'}]);
+      return;
+    }
+    const next=ROOMS.find(r=>r.id===id+1);
+    modal(`<h2>🔓 Vous êtes sortis !</h2><div class="bubble" style="text-align:left;display:flex;gap:10px;align-items:center"><div>${avatar(56)}</div><div>${R.outro}</div></div>
+      <p style="margin-top:14px">Nouvelle lettre dans votre carnet :</p><div class="big-letter">${R.letter}</div>`,
+      [{label:'🗺️ Plan',cls:'ghost',action:()=>location.href='#accueil'}].concat(next?[{label:`${next.name} →`,action:()=>location.href=next.file}]:[]));
+  }
+
+  draw(); drawInv(); banner();
+}
+
+/* ---------- Questions (QCM, vrai/faux, associer) ---------- */
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function buildQuestion(q,body,win,wrong){
+  if(q.type==='qcm'){
+    const box=el(`<div class="options"></div>`);
+    q.options.forEach((o,i)=>{ const b=el(`<button class="opt"><span class="l">${'ABCD'[i]}</span><span>${o}</span></button>`);
+      b.onclick=()=>{ if(i===q.answer){ b.classList.add('good'); win(); } else { b.classList.add('bad'); b.disabled=true; wrong(); } }; box.appendChild(b); });
+    body.appendChild(box);
+  }
+  if(q.type==='tf'){
+    const list=el(`<div class="tf-list"></div>`), ans=q.items.map(()=>null);
+    q.items.forEach((it,i)=>{ const row=el(`<div class="tf-row"><span>${it.s}</span><div class="tf-btns"><button class="v">V</button><button class="f">F</button></div></div>`);
+      const [bv,bf]=row.querySelectorAll('button');
+      bv.onclick=()=>{ans[i]=true;bv.classList.add('on');bf.classList.remove('on');SFX.click()};
+      bf.onclick=()=>{ans[i]=false;bf.classList.add('on');bv.classList.remove('on');SFX.click()};
+      list.appendChild(row); });
+    const go=el(`<button class="btn teal" style="margin-top:12px">Valider mes réponses</button>`);
+    go.onclick=()=>{ if(ans.includes(null)) return wrong('Répondez à toutes les phrases avant de valider.');
+      const nb=q.items.filter((it,i)=>it.a!==ans[i]).length;
+      if(!nb) win(); else { wrong(`✘ ${nb} réponse${nb>1?'s':''} incorrecte${nb>1?'s':''}… Cherchez lesquelles !`); go.disabled=true; setTimeout(()=>go.disabled=false,2500); } };
+    body.append(list,go);
+  }
+  if(q.type==='match'){
+    const wrap=el(`<div class="match"><div class="col L"></div><div class="col R"></div></div>`), L=wrap.querySelector('.L'), Rr=wrap.querySelector('.R');
+    let sel=null, done=0;
+    const lefts=q.pairs.map((x,i)=>({t:x[0],i})), rights=shuffle(q.pairs.map((x,i)=>({t:x[1],i})));
+    lefts.forEach(o=>{ const b=el(`<button class="mitem">${o.t}</button>`); o.b=b;
+      b.onclick=()=>{ if(b.classList.contains('ok')) return; lefts.forEach(x=>x.b.classList.remove('sel')); b.classList.add('sel'); sel=o; SFX.click(); }; L.appendChild(b); });
+    rights.forEach(o=>{ const b=el(`<button class="mitem">${o.t}</button>`);
+      b.onclick=()=>{ if(!sel||b.classList.contains('ok')) return;
+        if(sel.i===o.i){ done++; sel.b.classList.remove('sel'); sel.b.classList.add('ok'); b.classList.add('ok');
+          sel.b.insertAdjacentHTML('afterbegin',`<span class="pair">${done}</span>`); b.insertAdjacentHTML('afterbegin',`<span class="pair">${done}</span>`); sel=null; SFX.click();
+          if(done===q.pairs.length) win(); }
+        else { const sb=sel.b; b.classList.add('no'); sb.classList.add('no'); setTimeout(()=>{b.classList.remove('no');sb.classList.remove('no')},600); wrong('✘ Ces deux-là ne vont pas ensemble…'); } };
+      Rr.appendChild(b); });
+    body.appendChild(wrap);
+  }
+}
+
+/* ---------- Cadenas à molettes ---------- */
+function lockModal(o,onOpen){
+  const chars = o.kind==='digits' ? '0123456789' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const vals = Array(o.len).fill(0); let cur=0;
+  const bg=el(`<div class="modal-bg"><div class="modal panel lockm">
+    <div class="zoom-head"><h2>🔒 ${o.title}</h2><button class="hud-btn zclose">✕</button></div>
+    <p>${o.text||''}</p>
+    <div class="lockbody ${o.kind}"><div class="shackle"></div><div class="rollers"></div></div>
+    <p class="lock-help">Tournez les molettes avec ▲ ▼ ${o.kind==='letters'?'(ou tapez au clavier)':'(ou tapez les chiffres)'}</p>
+    <div class="feedback" id="lockFb"></div>
+    <button class="btn teal" id="tryBtn">🔓 Essayer d'ouvrir</button></div></div>`);
+  const rollers=bg.querySelector('.rollers'), fb=bg.querySelector('#lockFb');
+  function draw(){
+    rollers.innerHTML=vals.map((v,i)=>`<div class="roller ${i===cur?'cur':''}" data-i="${i}"><button data-u="${i}">▲</button><div class="rv">${chars[v]}</div><button data-d="${i}">▼</button></div>`).join('');
+  }
+  rollers.addEventListener('click',e=>{
+    const u=e.target.getAttribute('data-u'), d=e.target.getAttribute('data-d'), r=e.target.closest('.roller');
+    if(u!==null){ vals[u]=(vals[u]+1)%chars.length; cur=+u; SFX.click(); }
+    else if(d!==null){ vals[d]=(vals[d]-1+chars.length)%chars.length; cur=+d; SFX.click(); }
+    else if(r) cur=+r.getAttribute('data-i');
+    draw();
+  });
+  function key(e){
+    const k=e.key.toUpperCase();
+    if(chars.includes(k)&&k.length===1){ vals[cur]=chars.indexOf(k); cur=Math.min(cur+1,o.len-1); SFX.click(); draw(); e.preventDefault(); }
+    else if(e.key==='Backspace'||e.key==='ArrowLeft'){ cur=Math.max(0,cur-1); draw(); e.preventDefault(); }
+    else if(e.key==='ArrowRight'){ cur=Math.min(o.len-1,cur+1); draw(); e.preventDefault(); }
+    else if(e.key==='ArrowUp'){ vals[cur]=(vals[cur]+1)%chars.length; draw(); e.preventDefault(); }
+    else if(e.key==='ArrowDown'){ vals[cur]=(vals[cur]-1+chars.length)%chars.length; draw(); e.preventDefault(); }
+    else if(e.key==='Enter'){ attempt(); e.preventDefault(); }
+    else if(e.key==='Escape'){ close(); }
+  }
+  function close(){ document.removeEventListener('keydown',key); bg.remove(); }
+  let busy=false;
+  function attempt(){
+    if(busy) return;
+    const v=vals.map(x=>chars[x]).join('');
+    if(v===o.answer.toUpperCase()){
+      bg.querySelector('.lockbody').classList.add('open'); SFX.ok(); fb.className='feedback ok'; fb.textContent='✔ CLIC ! Le cadenas s\'ouvre !';
+      busy=true; setTimeout(()=>{ close(); onOpen(); },900);
+    } else {
+      S.errors++; save(); SFX.bad(); fb.className='feedback bad'; fb.textContent='✘ Le cadenas reste fermé…';
+      const m=bg.querySelector('.modal'); m.classList.remove('shake'); void m.offsetWidth; m.classList.add('shake');
+      busy=true; const b=bg.querySelector('#tryBtn'); b.disabled=true; setTimeout(()=>{busy=false;b.disabled=false;},1500);
+    }
+  }
+  bg.querySelector('#tryBtn').onclick=attempt;
+  bg.querySelector('.zclose').onclick=close;
+  document.addEventListener('keydown',key);
+  draw(); document.body.appendChild(bg);
+}
+
+/* ---------- Confettis ---------- */
+function confetti(){
+  const c=document.createElement('canvas'); c.id='confetti'; document.body.appendChild(c);
+  const x=c.getContext('2d'); let W,H; const P=[]; function rs(){W=c.width=innerWidth;H=c.height=innerHeight} rs(); addEventListener('resize',rs);
+  const cols=['#ffc93c','#ff7a1a','#19d3c5','#ff4d8d','#3ddc84','#fff'];
+  for(let i=0;i<180;i++) P.push({x:Math.random()*W,y:-Math.random()*H,w:6+Math.random()*8,h:8+Math.random()*10,vy:2+Math.random()*3,vx:-1+Math.random()*2,r:Math.random()*6,vr:-.2+Math.random()*.4,c:cols[i%cols.length]});
+  let n=0;(function f(){x.clearRect(0,0,W,H);P.forEach(p=>{p.y+=p.vy;p.x+=p.vx;p.r+=p.vr;if(p.y>H&&n<500){p.y=-20;p.x=Math.random()*W}x.save();x.translate(p.x,p.y);x.rotate(p.r);x.fillStyle=p.c;x.fillRect(-p.w/2,-p.h/2,p.w,p.h);x.restore();});n++;if(n<900)requestAnimationFrame(f);else c.remove();})();
+}
+
+/* Miniature d'une salle pour le plan */
+function thumb(id){ const R=ROOMS.find(r=>r.id===id); const fake={f:()=>false,has:()=>false}; return R.render(fake).replace('<svg ','<svg preserveAspectRatio="xMidYMid slice" width="100%" height="100%" ').replace(/data-hot=/g,'data-x='); }
+
+window.EG={
+  get state(){return S}, save, reset(){S=fresh();save();}, setState(fn){fn(S);save();},
+  ROOMS, ITEMS, STORY, DURATION, PENALTY,
+  remaining, fmt, unlocked, hud, tick, modal, avatar, whistleLogo, trophySvg, hamster, confetti, room, thumb, SFX, esc
+};
+})();
+
+</script>
+<script>
+/* Navigation entre les pages (un seul fichier) */
+var PAGES={
+"accueil":{html:"<div class=\"spotlights\"><span></span><span></span></div>\n<div id=\"hud\"></div>\n\n<div class=\"wrap\">\n  <header class=\"hero\">\n    <div class=\"kicker\">ESCAPE GAME • EPS • COLLÈGE</div>\n    <h1>LE MAÎTRE<br>DU SIFFLET</h1>\n    <p class=\"sub\">La Coupe d'Or a été volée. Gaston, le hamster de l'AS, a été kidnappé. 6 salles piégées à fouiller, 50 minutes pour tout sauver.</p>\n  </header>\n\n  <!-- Écran de départ -->\n  <section id=\"start\" hidden>\n    <div class=\"panel\">\n      <div class=\"villain\">\n        <div class=\"avatar\" id=\"av\"></div>\n        <div class=\"msg\">\n          <p style=\"margin-top:0\"><span class=\"flash-title\">📻 FLASH INFO</span> <span style=\"color:var(--muted);font-weight:800\">Ce matin, 7 h 58. La vitrine du hall est vide. Une lettre est scotchée sur la vitre…</span></p>\n          <div class=\"letter-paper\" id=\"letter\"></div>\n        </div>\n      </div>\n\n      <form class=\"team-form\" id=\"teamForm\">\n        <input id=\"teamName\" maxlength=\"40\" placeholder=\"Nom de votre équipe (ex : Les Fusées de 4ºB)\" required>\n        <button class=\"btn\" type=\"submit\">▶ Lancer le chrono</button>\n      </form>\n\n      <div class=\"rules\">\n        <div class=\"rule\"><b>⏱ 50 minutes</b>Le chrono démarre dès que vous lancez la partie. Il continue même si vous changez de page.</div>\n        <div class=\"rule\"><b>🔎 Fouillez tout</b>Cliquez partout dans la salle, ramassez des objets et utilisez-les. Bloqués ? Le bouton 👁 montre les zones cliquables.</div>\n        <div class=\"rule\"><b>✉️ Enveloppes du Maître</b>3 enveloppes sont cachées dans chaque salle. Répondez à ses questions : chaque bonne réponse donne une ⭐ et un indice. Il faut 3 ⭐ pour sortir !</div>\n        <div class=\"rule\"><b>🔒 Cadenas</b>Chaque salle est fermée par un cadenas. Vos connaissances en EPS donnent les codes !</div>\n        <div class=\"rule\"><b>🔤 1 salle = 1 lettre</b>Chaque salle réussie donne une lettre du mot secret qui ouvre le coffre final.</div>\n        <div class=\"rule\"><b>💡 Indices</b>Bloqués ? Le bouton 💡 donne un indice adapté à votre avancée… mais il coûte 1 minute !</div>\n        <div class=\"rule\"><b>💾 Sauvegarde</b>La partie est enregistrée sur cet appareil : vous pouvez fermer la page et reprendre.</div>\n      </div>\n    </div>\n  </section>\n\n  <!-- Plan du complexe sportif -->\n  <section id=\"mapSec\" hidden>\n    <div class=\"map-title\">\n      <div>\n        <h2 style=\"font-size:28px;margin:0\">🗺️ Plan du complexe sportif</h2>\n        <div style=\"color:var(--muted)\">Les salles se débloquent dans l'ordre. Salle en cours : <b id=\"curName\" style=\"color:var(--orange)\"></b></div>\n      </div>\n      <div style=\"display:flex;gap:8px;flex-wrap:wrap\">\n        <button class=\"btn small ghost\" id=\"reread\">📩 Relire la lettre</button>\n        <button class=\"btn small ghost\" id=\"resetBtn\">↺ Nouvelle partie</button>\n      </div>\n    </div>\n    <div class=\"map\" id=\"map\"></div>\n  </section>\n\n  <p class=\"footer\">Escape game EPS — collège • <a href=\"#prof\">Espace professeur</a></p>\n</div>",run:function(){
+
+(function(){
+  const S = EG.state, R = EG.ROOMS;
+  document.getElementById('av').innerHTML = EG.avatar(120);
+
+  function letterHTML(){
+    return EG.STORY.letter.map(p=>`<p style="margin:0 0 10px">${p}</p>`).join('') + `<div class="sign">${EG.STORY.signature}</div>`;
+  }
+
+  /* Effet machine à écrire */
+  function typeLetter(target){
+    const paras = EG.STORY.letter.concat([EG.STORY.signature]);
+    target.innerHTML='';
+    let pi=0;
+    function nextPara(){
+      if(pi>=paras.length) return;
+      const isSign = pi===paras.length-1;
+      const p=document.createElement(isSign?'div':'p'); if(isSign)p.className='sign'; else p.style.margin='0 0 10px';
+      target.appendChild(p);
+      const html=paras[pi]; let i=0;
+      const cur=document.createElement('span'); cur.className='cursor';
+      (function step(){
+        if(i<=html.length){
+          // on saute les balises HTML d'un coup
+          if(html[i]==='<'){ i=html.indexOf('>',i)+1; }
+          p.innerHTML=html.slice(0,i); p.appendChild(cur); i++;
+          setTimeout(step, 14);
+        } else { cur.remove(); pi++; setTimeout(nextPara,200); }
+      })();
+    }
+    nextPara();
+    target.onclick=()=>{ pi=paras.length; target.innerHTML=letterHTML(); };
+  }
+
+  function showStart(){
+    document.getElementById('start').hidden=false;
+    document.getElementById('mapSec').hidden=true;
+    typeLetter(document.getElementById('letter'));
+  }
+
+  function showMap(){
+    document.getElementById('start').hidden=true;
+    document.getElementById('mapSec').hidden=false;
+    EG.hud();
+    const map=document.getElementById('map');
+    const current=R.find(r=>EG.unlocked(r.id)&&!S.rooms[r.id]);
+    document.getElementById('curName').textContent = current ? current.name : 'toutes terminées ! 🏆';
+    map.innerHTML = R.map(r=>{
+      const un=EG.unlocked(r.id), done=!!S.rooms[r.id];
+      return `<a class="room-card ${un?'':'locked'} ${current&&current.id===r.id?'current':''}" href="${un?r.file:'#'}">
+        <div class="thumb">${EG.thumb(r.id)}</div>
+        <div class="info"><div class="num">SALLE ${r.id}${r.final?' — FINALE':''}</div><div class="name">${r.name}</div><div class="theme">${r.theme}</div></div>
+        ${done?`<div class="badge">${r.final?'🏆':r.letter}</div>`:''}
+        ${un?'':'<div class="lock">🔒</div>'}
+      </a>`;
+    }).join('');
+    if(S.rooms[6]) map.insertAdjacentHTML('beforebegin', `<div class="panel" style="text-align:center;margin-bottom:16px"><b style="color:var(--gold)">🏆 Mission accomplie !</b> <a class="btn small" href="#fin" style="margin-left:10px">Voir le diplôme</a></div>`);
+  }
+
+  document.getElementById('teamForm').onsubmit=e=>{
+    e.preventDefault();
+    const name=document.getElementById('teamName').value.trim();
+    if(!name) return;
+    EG.setState(s=>{ s.team=name; s.start=Date.now(); });
+    EG.SFX.whistle();
+    showMap();
+    window.scrollTo({top:document.getElementById('mapSec').offsetTop-80,behavior:'smooth'});
+  };
+  document.getElementById('reread').onclick=()=>{
+    EG.modal(`<div style="text-align:left" class="letter-paper">${letterHTML()}</div>`,[{label:'Fermer'}]);
+  };
+  document.getElementById('resetBtn').onclick=()=>{
+    EG.modal(`<h2>↺ Nouvelle partie ?</h2><p>Toute la progression de <b>${EG.esc(S.team)}</b> sera effacée sur cet appareil.</p>`,[
+      {label:'Oui, tout effacer',action:()=>{ EG.reset(); location.reload(); }},
+      {label:'Annuler',cls:'ghost'}
+    ]);
+  };
+
+  if(S.start) showMap(); else showStart();
+})();
+
+}},
+"fin":{html:"<div class=\"spotlights\"><span></span><span></span></div>\n<div id=\"hud\"></div>\n<main class=\"wrap\" id=\"main\"></main>",run:function(){
+
+(function(){
+  const S=EG.state, main=document.getElementById('main');
+  EG.hud();
+  if(!S.rooms[6]){
+    main.innerHTML=`<div class="panel" style="margin-top:40px;text-align:center"><h2>🔒 Pas si vite !</h2><p>La Coupe d'Or n'a pas encore été retrouvée.</p><a class="btn" href="#accueil">Retour au plan</a></div>`;
+    return;
+  }
+  const used = Math.floor((S.end - S.start)/1000);
+  const rem = EG.remaining();
+  const stars = rem>0 ? (S.hints<=3 ? 3 : 2) : 1;
+  const verdict = ["", "Mission accomplie… en prolongation ! Ouf, la coupe n'a pas fondu.", "Belle victoire ! Peut-être un peu trop d'indices…", "Victoire légendaire ! Le Maître du Sifflet s'incline."][stars];
+  const date = new Date(S.end).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'});
+  main.innerHTML=`
+    <header class="hero" style="padding-top:30px">
+      <div class="kicker">MISSION ACCOMPLIE</div>
+      <h1>LA COUPE D'OR<br>EST SAUVÉE !</h1>
+    </header>
+    <div style="display:flex;justify-content:center;align-items:flex-end;gap:4px;margin:-6px auto 6px"><div style="width:min(220px,55vw)">${EG.trophySvg()}</div><div title="Gaston">${EG.hamster(110)}</div></div>
+    <div class="panel">
+      <div class="whistle-msg"><div class="av">${EG.avatar(70)}</div><div class="bubble">${EG.STORY.ending.map(p=>`<p style="margin:0 0 8px">${p}</p>`).join('')}</div></div>
+      <div class="stats">
+        <div class="stat"><div class="v">${EG.fmt(used)}</div><div class="k">Temps de jeu</div></div>
+        <div class="stat"><div class="v">${rem>0?EG.fmt(rem):'0:00'}</div><div class="k">Temps restant</div></div>
+        <div class="stat"><div class="v">${S.hints}</div><div class="k">Indices (−${S.hints} min)</div></div>
+        <div class="stat"><div class="v">${S.errors}</div><div class="k">Erreurs</div></div>
+      </div>
+      <p style="text-align:center;font-weight:900;font-size:19px;color:var(--gold)">${'⭐'.repeat(stars)}${'☆'.repeat(3-stars)} — ${verdict}</p>
+    </div>
+
+    <div class="diploma" id="diploma">
+      <div style="font-weight:800;letter-spacing:3px;color:#7a5a20">DIPLÔME OFFICIEL DE L'ASSOCIATION SPORTIVE</div>
+      <h2>Arbitres officiels de l'AS</h2>
+      <p>Le Maître du Sifflet nomme officiellement l'équipe</p>
+      <div class="team">${EG.esc(S.team)}</div>
+      <p>s'est échappée des 6 salles piégées, a maîtrisé les règlements, la sécurité, la santé et le fair-play,<br>a sauvé la Coupe d'Or (et Gaston le hamster) en <b>${EG.fmt(used)}</b>.</p>
+      <div class="stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+      <p style="margin-bottom:0">Le ${date} — <i>Tweeeet !</i></p>
+    </div>
+
+    <div class="no-print" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px">
+      <button class="btn" id="printBtn">🖨️ Imprimer le diplôme</button>
+      <a class="btn ghost" href="#accueil">🗺️ Retour au plan</a>
+    </div>
+    <p class="no-print" id="printMsg" style="text-align:center;color:var(--muted)"></p>`;
+  document.getElementById('printBtn').onclick=()=>{
+    try{ window.print(); }catch(e){}
+    document.getElementById('printMsg').textContent="Si l'impression ne s'ouvre pas, faites une capture d'écran du diplôme 📸";
+  };
+  EG.confetti(); EG.SFX.win();
+})();
+
+}},
+"prof":{html:"<div class=\"spotlights\"><span></span><span></span></div>\n<main class=\"wrap\">\n  <header class=\"hero\" style=\"padding:30px 0 10px\">\n    <div class=\"kicker\">MAÎTRE DU JEU</div>\n    <h1 style=\"font-size:clamp(28px,5vw,48px)\">ESPACE PROFESSEUR</h1>\n  </header>\n\n  <section id=\"gate\" class=\"panel\" style=\"max-width:480px;margin:auto;text-align:center\">\n    <p>Entrez le mot de passe professeur :</p>\n    <form id=\"gateForm\" class=\"team-form\" style=\"justify-content:center\">\n      <input id=\"pwd\" type=\"password\" placeholder=\"Mot de passe\" autocomplete=\"off\">\n      <button class=\"btn\" type=\"submit\">Entrer</button>\n    </form>\n    <p id=\"gateMsg\" class=\"feedback bad\"></p>\n    <a href=\"#accueil\">← Retour au jeu</a>\n  </section>\n\n  <section id=\"zone\" hidden>\n    <div class=\"panel\" style=\"margin-bottom:18px\">\n      <h2>🎛️ Commandes (sur cet appareil)</h2>\n      <p style=\"color:var(--muted);margin-top:0\">La partie est enregistrée dans le navigateur de chaque appareil : ces boutons agissent uniquement sur l'appareil où vous êtes.</p>\n      <div id=\"status\" style=\"margin-bottom:12px;font-weight:800\"></div>\n      <div style=\"display:flex;gap:10px;flex-wrap:wrap\">\n        <button class=\"btn small teal\" id=\"plus\">+5 min</button>\n        <button class=\"btn small ghost\" id=\"minus\">−5 min</button>\n        <button class=\"btn small ghost\" id=\"unlock\">🔓 Débloquer toutes les salles</button>\n        <button class=\"btn small\" id=\"reset\">↺ Réinitialiser la partie</button>\n        <a class=\"btn small ghost\" href=\"#accueil\">🗺️ Aller au jeu</a>\n      </div>\n    </div>\n\n    <div class=\"panel\" style=\"margin-bottom:18px\">\n      <h2>📋 Conseils d'organisation</h2>\n      <ul>\n        <li><b>Durée :</b> 50 min de jeu (+ 5 min de lancement et 5 min de bilan).</li>\n        <li><b>Équipes :</b> 2 à 4 élèves par tablette / ordinateur. Un « maître du clavier » qui tourne à chaque salle.</li>\n        <li><b>Principe :</b> escape game « point & click ». Dans chaque salle, les élèves cliquent sur le décor pour fouiller, ramassent des objets (inventaire), les utilisent (sélectionner l'objet puis cliquer sur un élément), lisent des documents et ouvrent des cadenas à molettes.</li>\n        <li><b>Déroulement :</b> 6 salles (vestiaires, gymnase, stade, salle de gym, infirmerie, salle des trophées). Lettres obtenues : E, P, I, U, Q + E (médaille de la salle 6) → mot secret <b>ÉQUIPE</b>.</li>\n        <li><b>Important :</b> le sifflet doré du gymnase (salle 2) sert dans la salle 6. Les élèves peuvent revenir dans une salle déjà terminée via le plan.</li>\n        <li><b>Enveloppes du Maître :</b> 3 par salle, cachées dans le décor. Chacune contient une question (QCM, vrai/faux, associer). Bonne réponse = 1 étoile + 1 indice pour la salle. Il faut les 3 étoiles pour sortir.</li>\n        <li><b>Aides :</b> bouton 👁 « Montrer les zones » (gratuit) pour voir ce qui est cliquable ; bouton 💡 « Indice » (−1 min), qui s'adapte à l'avancée dans la salle.</li>\n        <li><b>Indices :</b> chaque indice coûte 1 min. À 0:00, le jeu passe en prolongation (le chrono compte le temps supplémentaire).</li>\n        <li><b>Fin :</b> page de victoire avec étoiles (3★ = fini à temps avec 3 indices max) et diplôme imprimable.</li>\n        <li><b>Son :</b> petits effets sonores (sifflet, bonne réponse). Bouton 🔊 en haut pour couper.</li>\n      </ul>\n    </div>\n\n    <div class=\"panel\">\n      <h2>🔑 Corrigé complet</h2>\n      <div id=\"sol\"></div>\n    </div>\n  </section>\n</main>",run:function(){
+
+(function(){
+  const PASSWORD='COUPEDOR26';
+  function open(){
+    document.getElementById('gate').hidden=true;
+    document.getElementById('zone').hidden=false;
+    try{sessionStorage.setItem('eg_prof','1')}catch(e){}
+    status(); solutions();
+  }
+  function status(){
+    const S=EG.state;
+    const done=EG.ROOMS.filter(r=>S.rooms[r.id]).length;
+    document.getElementById('status').innerHTML = S.start
+      ? `Équipe : <span style="color:var(--gold)">${EG.esc(S.team)}</span> — Chrono : <span style="color:var(--gold)">${EG.fmt(EG.remaining())}</span> — Salles terminées : ${done}/6 — Indices : ${S.hints} — Erreurs : ${S.errors}`
+      : `Aucune partie en cours sur cet appareil.`;
+  }
+  setInterval(status,1000);
+  function solutions(){
+    document.getElementById('sol').innerHTML = EG.ROOMS.map(r=>`
+      <h3 style="margin-top:20px;color:var(--teal)">Salle ${r.id} — ${r.name} ${r.final?'<span style="color:var(--gold)">(médaille : lettre E)</span>':`<span style="color:var(--gold)">(lettre ${r.letter})</span>`}</h3>
+      <p style="margin:6px 0 2px;color:var(--gold);font-weight:800">✉️ Les 3 enveloppes (questions) :</p>
+      <ul style="line-height:1.6">${r.questions.map(q=>`<li><b>${q.title}</b> → <span style="color:#3ddc84">${q.type==='qcm'?q.options[q.answer]:q.type==='tf'?q.items.map(x=>x.a?'V':'F').join(' / '):q.pairs.map(x=>x[0]+' = '+x[1]).join(' ; ')}</span></li>`).join('')}</ul>
+      <p style="margin:6px 0 2px;color:var(--gold);font-weight:800">🔎 Fouille et cadenas :</p>
+      <ol style="line-height:1.7">${r.solution.map(x=>`<li>${x}</li>`).join('')}</ol>`).join('');
+  }
+  document.getElementById('gateForm').onsubmit=e=>{
+    e.preventDefault();
+    if(document.getElementById('pwd').value.trim().toUpperCase()===PASSWORD) open();
+    else document.getElementById('gateMsg').textContent='Mot de passe incorrect.';
+  };
+  document.getElementById('plus').onclick=()=>{EG.setState(s=>s.penalty-=300);status();};
+  document.getElementById('minus').onclick=()=>{EG.setState(s=>s.penalty+=300);status();};
+  document.getElementById('unlock').onclick=()=>{EG.setState(s=>{s.unlockAll=true; if(!s.start){s.start=Date.now();s.team=s.team||'Test prof';}});status();};
+  document.getElementById('reset').onclick=()=>{
+    EG.modal(`<h2>↺ Réinitialiser ?</h2><p>La partie en cours sur cet appareil sera effacée.</p>`,[
+      {label:'Oui, réinitialiser',action:()=>{EG.reset();location.reload();}},{label:'Annuler',cls:'ghost'}]);
+  };
+  try{ if(sessionStorage.getItem('eg_prof')==='1') open(); }catch(e){}
+})();
+
+}},
+"salle1":{html:"<div class=\"spotlights\"><span></span><span></span></div>\n<div id=\"hud\"></div>\n<main class=\"wrap\" id=\"main\"></main>",run:function(){
+EG.room(1);
+}},
+"salle2":{html:"<div class=\"spotlights\"><span></span><span></span></div>\n<div id=\"hud\"></div>\n<main class=\"wrap\" id=\"main\"></main>",run:function(){
+EG.room(2);
+}},
+"salle3":{html:"<div class=\"spotlights\"><span></span><span></span></div>\n<div id=\"hud\"></div>\n<main class=\"wrap\" id=\"main\"></main>",run:function(){
+EG.room(3);
+}},
+"salle4":{html:"<div class=\"spotlights\"><span></span><span></span></div>\n<div id=\"hud\"></div>\n<main class=\"wrap\" id=\"main\"></main>",run:function(){
+EG.room(4);
+}},
+"salle5":{html:"<div class=\"spotlights\"><span></span><span></span></div>\n<div id=\"hud\"></div>\n<main class=\"wrap\" id=\"main\"></main>",run:function(){
+EG.room(5);
+}},
+"salle6":{html:"<div class=\"spotlights\"><span></span><span></span></div>\n<div id=\"hud\"></div>\n<main class=\"wrap\" id=\"main\"></main>",run:function(){
+EG.room(6);
+}}
+};
+(function(){
+  var k=(location.hash||'').slice(1); if(!PAGES[k]) k='accueil';
+  document.getElementById('app').innerHTML=PAGES[k].html;
+  window.scrollTo(0,0);
+  PAGES[k].run();
+  window.addEventListener('hashchange',function(){ location.reload(); });
+})();
+</script>
+</body>
+</html>
